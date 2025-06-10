@@ -13,14 +13,14 @@ cd scratch
 ```
 
 **Improve and organize all of this later**
-Create working directory
-Change into working directory
-Load the python module
-Load the pytorch module
-Create a virtual Python environment
-Activate the virtual Python environment
-Install the transformers library using python3 -m pip install transformers
-Install this library using python3 -m pip install tf-keras
+- Create working directory
+- Change into working directory
+- Load the python module
+- Load the pytorch module
+- Create a virtual Python environment
+- Activate the virtual Python environment
+- Install the transformers library using python3 -m pip install transformers
+- Install this library using python3 -m pip install tf-keras
 
 The following Python code
 ```python
