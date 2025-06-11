@@ -47,7 +47,7 @@ Where `env_dir_name` is the name of the virtual Python environment directory tha
 
 7. Finally, install necessary Python dependencies using the following command:
 ```shell
-pip install transformers torch torchvision torchaudio
+pip install "transformers[torch]"
 ```
 8. At this point you should be able to run the following test snippet from within the Python file created earlier:
 ```python
