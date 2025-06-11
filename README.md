@@ -15,41 +15,41 @@ cd [dir_name]
 ```
 Where `dir_name` is the desired name for your working directory.
 
-3. Once you are in this directory, you need to run the following commands to get access to the Python module and load it:
+2. Once you are in this directory, you need to run the following commands to get access to the Python module and load it:
 ```shell
 module use /opt/modules/modulefiles
 module load python/3.8.11
 ```
-4. Next, you are going to create a virtual environment for Python using the following command:
+3. Next, you are going to create a virtual environment for Python using the following command:
 ```shell
 python -m venv [env_dir_name]
 ```
 Where `env_dir_name` is the desired name for your virtual Python environment directory (a common name is `.env`).
 
-5. You can then create/edit a Python file using the following command<sup>1</sup>:
+4. You can then create/edit a Python file using the following command<sup>1</sup>:
 ```shell
 vim [py_file_name]
 ```
 Where `py_file_name` is the desired name for your Python script.
 
-6. Back in the terminal (i.e., you have quit from Vim), run the following command to access one of the GPU node:
+5. Back in the terminal (i.e., you have quit from Vim), run the following command to access one of the GPU nodes:
 ```shell
 srun --partition=gpu-volatile --nodelist=[desired_node] --gpus=[desired_num_gpus] --pty bash -i
 ```
 Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu) and
 `desired_num_gpus` is the number of GPUs that you would like to be accessible. It's important to note that you probably want to use `node01` or `node02` because according to DeepSeek you need [8 80GB GPUs](https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Instruct#5-how-to-run-locally) for their model. No matter what node you choose, make sure that `desired_num_gpus` is less than or equal to the maximum amount supported by the node you are using. 
 
-7. Now, load the Python virtual environment that you created earlier by executing the following command:
+6. Now, load the Python virtual environment that you created earlier by executing the following command:
 ```shell
 source [env_dir_name]/bin/activate
 ```
 Where `env_dir_name` is the name of the virtual Python environment directory that was created earlier.
 
-8. Finally, install necessary Python dependencies using the following command:
+7. Finally, install necessary Python dependencies using the following command:
 ```shell
 pip install transformers torch torchvision torchaudio
 ```
-9. At this point you should be able to run the following test snippet from within the Python file created earlier:
+8. At this point you should be able to run the following test snippet from within the Python file created earlier:
 ```python
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
@@ -68,8 +68,42 @@ print(tokenizer.decode(outputs[0][len(inputs[0]):], skip_special_tokens=True))
 python [py_file_name]
 ```
 Where `py_file_name` is the name of the Python script you created earlier.
+To exit, follow the [exiting](#exiting) section.
 
 <sup>1</sup> It's important to note that you can only access Vim from the staging shell. Trying to edit the Python file from the GPU node won't work.
+
+### Continuing Work
+
+Assuming you have already performed the [first time setup](#first-time-setup), you can continue work using this short guide.
+
+1. After logging in to the staging shell, change to your working directory:
+```shell
+cd [dir_name]
+```
+Where `dir_name` is the name of the working directory that you created during the setup.
+
+2. Once you are in this directory, you need to run the following commands to get access to the Python module and load it:
+```shell
+module use /opt/modules/modulefiles
+module load python/3.8.11
+```
+
+3. At this point you should make any edits to the Python script(s) that you are going to run.
+
+4. Run the following command to access one of the GPU nodes:
+```shell
+srun --partition=gpu-volatile --nodelist=[desired_node] --gpus=[desired_num_gpus] --pty bash -i
+```
+Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu) and
+`desired_num_gpus` is the number of GPUs that you would like to be accessible. It's important to note that you probably want to use `node01` or `node02` because according to DeepSeek you need [8 80GB GPUs](https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Instruct#5-how-to-run-locally) for their model. No matter what node you choose, make sure that `desired_num_gpus` is less than or equal to the maximum amount supported by the node you are using. 
+
+5. Now, load the Python virtual environment that you created earlier by executing the following command:
+```shell
+source [env_dir_name]/bin/activate
+```
+Where `env_dir_name` is the name of the virtual Python environment directory that was created earlier.
+
+6. At this point you are setup to perform work again. To exit, follow the [exiting](#exiting) section.
 
 ### Exiting
 
