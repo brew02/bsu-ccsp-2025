@@ -36,7 +36,7 @@ Where `py_file_name` is the desired name for your Python script.
 ```shell
 srun --partition=gpu-volatile --nodelist=[desired_node] --gpus=[desired_num_gpus] --pty bash -i
 ```
-Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu) and
+Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu)) and
 `desired_num_gpus` is the number of GPUs that you would like to be accessible. It's important to note that you probably want to use `node01` or `node02` because according to DeepSeek you need [8 80GB GPUs](https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Instruct#5-how-to-run-locally) for their model. No matter what node you choose, make sure that `desired_num_gpus` is less than or equal to the maximum amount supported by the node you are using. 
 
 6. Now, load the Python virtual environment that you created earlier by executing the following command:
@@ -94,7 +94,7 @@ module load python/3.8.11
 ```shell
 srun --partition=gpu-volatile --nodelist=[desired_node] --gpus=[desired_num_gpus] --pty bash -i
 ```
-Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu) and
+Where `desired_node` is the name of node(s) you wish to access (a list can be found [here](https://docs.c3plus3.org/docs/help/Tutorials/Partitions.html#gpu)) and
 `desired_num_gpus` is the number of GPUs that you would like to be accessible. It's important to note that you probably want to use `node01` or `node02` because according to DeepSeek you need [8 80GB GPUs](https://huggingface.co/deepseek-ai/DeepSeek-Coder-V2-Instruct#5-how-to-run-locally) for their model. No matter what node you choose, make sure that `desired_num_gpus` is less than or equal to the maximum amount supported by the node you are using. 
 
 5. Now, load the Python virtual environment that you created earlier by executing the following command:
