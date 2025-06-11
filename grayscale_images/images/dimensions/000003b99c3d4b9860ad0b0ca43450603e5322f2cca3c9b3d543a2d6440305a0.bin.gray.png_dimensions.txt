@@ -1,0 +1,2 @@
+Width: 32, Height: 192
+Length: 6145
