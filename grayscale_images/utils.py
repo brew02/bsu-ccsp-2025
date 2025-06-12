@@ -33,8 +33,8 @@ def display_image(sample_name):
     else:
         print("Path is not an expected image file or does not exist.")
 
-def analyze_pixel_intensity(sample_name):
-    # Analyzes the pixel intensity of a given sample gray scale image and saves it to a text file
+def pixel_hist(sample_name):
+    # Displays a histogram of pixel intensities for a given sample gray scale image
 
     image_path = Path(f"images/{sample_name}")
     image_path = image_path.resolve()
@@ -48,14 +48,6 @@ def analyze_pixel_intensity(sample_name):
     pixel_values = np.array(image)
 
     np.savetxt(output_path, pixel_values)
-
-def pixel_hist(sample_name):
-    # Displays a histogram of pixel intensities for a given sample gray scale image
-
-    image_path = Path(f"images/{sample_name}_pixel_intensity.txt")
-    image_path = image_path.resolve()
-
-    pixel_values = np.loadtxt(image_path)
 
     plt.hist(pixel_values, range=(0, 255))
     plt.title(f'Pixel Intensity Histogram for {sample_name}')
@@ -153,7 +145,7 @@ def calculate_icp(sample_name1, sample_name2):
     image_path2 = image_path2.resolve()
 
     if image_path1.is_file() and image_path2.is_file():
-        icp = ICP.ICP(binary_or_color="binary", font_file=False)
+        icp = ICP.ICP(binary_or_color="color")
         icp.extract_pixels_from_binary_image(image_path1)
         icp.extract_pixels_from_binary_image(image_path2)
         icp.icp()
