@@ -1,2 +1,0 @@
-Width: 768, Height: 1087
-Length: 834920
