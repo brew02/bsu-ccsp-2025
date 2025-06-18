@@ -1,7 +1,7 @@
 import angr
 import sys
 import os
-import IPython
+import pefile
 
 def sem_error(message, usage):
     print(message)
@@ -9,17 +9,38 @@ def sem_error(message, usage):
         print("Usage: python3 sem.py [file_path | directory_path]")
     sys.exit(-1)
 
+symbols = {}
+
 def debug_func(state):
-    IPython.embed()
+    # Print the address of the instruction itself (where it is)
+    print(f"Instruction address: {state.inspect.instruction:#x}")
 
 def sem_analysis(file_path):
     if os.path.isfile(file_path) == False:
         return False
     
+    print(f"\n{file_path}\n")
     try:
-        p = angr.Project(file_path, main_opts={"backend": "pe", "arch": "X86"}, auto_load_libs=False)
+        symbols.clear()
+
+        pe = pefile.PE(file_path)
+        if hasattr(pe, "DIRECTORY_ENTRY_IMPORT"):
+            for entry in pe.DIRECTORY_ENTRY_IMPORT:
+                dll = entry.dll.decode('utf-8')
+                for imp in entry.imports:
+                    if imp.name:
+                        symbols[dll + ":" + imp.name.decode('utf-8')] = imp.address
+                    else:
+                        symbols[dll + ":" + imp.ordinal] = imp.address
+        else:
+            print("No imports")
+
+        p = angr.Project(file_path, main_opts={'backend': 'pe', 'arch': 'X86'}, auto_load_libs=False)
         state = p.factory.entry_state(add_options={angr.options.ZERO_FILL_UNCONSTRAINED_REGISTERS, angr.options.ZERO_FILL_UNCONSTRAINED_MEMORY})
-        state.inspect.b("call", when=angr.BP_BEFORE, action=debug_func)
+        
+        for symbol in symbols:
+            state.inspect.b('mem_read', mem_read_address=symbols[symbol], when=angr.BP_BEFORE, action=debug_func)
+
         sm = p.factory.simulation_manager(state)
         sm.run()
 
