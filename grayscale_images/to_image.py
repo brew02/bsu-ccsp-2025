@@ -97,6 +97,6 @@ for file in input_dir.iterdir():
         f.write(f"Length: {len(gray_code)}\n")
 
     num_success += 1
-
+    
 # Summary 
 print(f"\nDone. {num_success} files converted to images. {num_failed} failed.")
