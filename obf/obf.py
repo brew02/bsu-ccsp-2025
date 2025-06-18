@@ -12,7 +12,12 @@ def obfuscate(file_path):
     if os.path.isfile(file_path) == False:
         return False
     
-    
+    try:
+        pe = pefile.PE(file_path)
+        print(f"{pe.OPTIONAL_HEADER.AddressOfEntryPoint:#x}")
+        pe.close()
+    except:
+        return False
 
     return True
 
@@ -37,9 +42,9 @@ if os.path.isdir(path):
     # Loop through the directory if that was specified
     for file_name in os.listdir(path):
         file_path = os.path.join(path, file_name)
-        b2w(file_path)
+        obfuscate(file_path)
 else:
-    b2w(path)
+    obfuscate(path)
 
-print("Converted to .wav")
+print("Obfuscation complete")
 
