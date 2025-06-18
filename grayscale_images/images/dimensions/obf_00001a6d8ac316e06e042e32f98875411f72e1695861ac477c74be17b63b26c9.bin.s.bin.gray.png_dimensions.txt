@@ -1,2 +1,0 @@
-Width: 32, Height: 103
-Length: 3304
