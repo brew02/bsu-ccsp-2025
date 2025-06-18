@@ -13,8 +13,8 @@ def print_angr_summary(file_path):
     print("Entry point: ", hex(project.entry))
     print("Number of functions: ", len(cfg.kb.functions))
 
-decompressed_dir  ="/Users/devyn/REU/shared_git/bsu-ccsp-2025/grayscale_images/decompressed"
-decompressed_dir = Path(decompressed_dir)
+current_dir = os.getcwd() + "/bin"
+decompressed_dir = Path(current_dir)
 for file_name in decompressed_dir.iterdir():
     filename = os.path.join(decompressed_dir, file_name.name)
     print_angr_summary(filename)
