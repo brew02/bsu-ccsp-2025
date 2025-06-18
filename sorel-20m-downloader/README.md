@@ -7,3 +7,12 @@ This Python script downloads the PE binaries from the SOREL-20M dataset with a b
 Ensure that requests and boto3 is installed using the following command:
 
 `pip install requests boto3`
+
+## Using the IDA Scripts
+
+The `save_to_asm.idc` script can be used as follows in its current state:
+
+1. Load the file that you want to convert into IDA
+2. Load the script file by navigating to File -> Script file within IDA
+3. Select the `save_to_asm.idc` script file
+4. You should be prompted with a window to save the file
