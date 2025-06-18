@@ -38,6 +38,8 @@ def sem_analysis(file_path):
         p = angr.Project(file_path, main_opts={'backend': 'pe', 'arch': 'X86'}, auto_load_libs=False)
         state = p.factory.entry_state(add_options={angr.options.ZERO_FILL_UNCONSTRAINED_REGISTERS, angr.options.ZERO_FILL_UNCONSTRAINED_MEMORY})
         
+        # For each import in the PE, add a memory read breakpoint for its address
+        # i.e., whenever an import is read, we are notified via the debug_func function
         for symbol in symbols:
             state.inspect.b('mem_read', mem_read_address=symbols[symbol], when=angr.BP_BEFORE, action=debug_func)
 
