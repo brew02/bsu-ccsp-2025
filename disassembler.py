@@ -15,6 +15,8 @@ import os
 
 def disassemble_raw(code, addr, arch, outpath):
 
+    # Disassembles raw binary and saves file to outpath 
+
     if arch == "x86":
         md = Cs(CS_ARCH_X86, CS_MODE_32)
     elif arch == "x64":
@@ -33,6 +35,9 @@ def disassemble_raw(code, addr, arch, outpath):
     print(f"Disassembly written to {outpath}")
 
 def try_pe_disassembly(filepath):
+
+    # If file is a valid PE file, disassembles the binary
+
     try: 
         pe = pefile.PE(filepath)
     except pefile.PEFormatError:
