@@ -25,14 +25,14 @@ def disassemble_raw(code, addr, arch, outpath):
         raise ValueError("Unsupported arch. Use x86 or x64.")
     
     md.detail = True
-    print(f"Disassembling {filepath} as {arch} code...\n")
+    print(f"Disassembling {filepath} as {arch} code...")
 
     with open(outpath, "w") as f:
         for instr in md.disasm(code, addr):
             line = "0x{:08X}:\t{}\t{}".format(instr.address, instr.mnemonic, instr.op_str)
             f.write(line + "\n")
 
-    print(f"Disassembly written to {outpath}")
+    print(f"Disassembly written to {outpath}\n")
 
 def try_pe_disassembly(filepath):
 
