@@ -1,10 +1,10 @@
 import zlib
 import os 
 
-current_path = os.getcwd() + "\\bin"
+current_path = os.getcwd() + "/bin"
 for filename in os.listdir(current_path):
     filepath = os.path.join(current_path, filename)
-
+    
     # Only extract compressed binaries
     file_suffix = "_extracted"
     if filename.endswith(file_suffix):

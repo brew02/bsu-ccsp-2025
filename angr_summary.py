@@ -1,3 +1,14 @@
+# This script uses the angr library to analyze binary files in a specified directory.
+
+# To use angr in it's own enviornment, created a conda enviornment with the following command
+#   conda create -n angr_env python=3.8
+# Activate the environment with:
+#   conda activate angr_env
+# Install angr with:
+#   pip install angr
+
+# This script assumes that the files being analyzed are PE files found in the "bin" directory
+
 import angr 
 import archinfo
 import os
@@ -13,8 +24,8 @@ def print_angr_summary(file_path):
     print("Entry point: ", hex(project.entry))
     print("Number of functions: ", len(cfg.kb.functions))
 
-decompressed_dir  ="/Users/devyn/REU/shared_git/bsu-ccsp-2025/grayscale_images/decompressed"
-decompressed_dir = Path(decompressed_dir)
+current_dir = os.getcwd() + "/bin"
+decompressed_dir = Path(current_dir)
 for file_name in decompressed_dir.iterdir():
     filename = os.path.join(decompressed_dir, file_name.name)
     print_angr_summary(filename)
