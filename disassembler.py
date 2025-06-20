@@ -3,6 +3,16 @@ import sys
 import pefile 
 import os
 
+# This script reads a file as either a valid PE file or raw binary and disassembles it, saving the code to a file in the "disassembled" directory
+
+# To call it on one file via terminal, use the following call 
+#
+#       python disassembler.py path/to/file
+
+# To call this on every file in a directory via terminal, use the following call 
+#
+#       for file in /path/to/directory/*; do python disassembler.py "$file"
+
 def disassemble_raw(code, addr, arch, outpath):
 
     if arch == "x86":
