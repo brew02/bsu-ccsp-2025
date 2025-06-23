@@ -2,6 +2,7 @@ from capstone import *
 import sys
 import pefile 
 import os
+import re
 
 # This script reads a file as either a valid PE file or raw binary and disassembles it, saving the code to a file in the "disassembled" directory
 
@@ -12,6 +13,19 @@ import os
 # To call this on every file in a directory via terminal, use the following call 
 #
 #       for file in /path/to/directory/*; do python disassembler.py "$file"
+
+def strip_addresses(code):  # Not currently being called, possible option 
+    # Strip the addresses from the assembly
+
+    stripped = []
+    for line in code:
+        match = re.match(r"^\s*[0-9a-fA-F]+:\s(.*)", line)
+        if match:
+            stripped.append(match.group(1))
+        else:
+            stripped.append(line.strip())
+    
+    return stripped
 
 def disassemble_raw(code, addr, arch, outpath):
 
