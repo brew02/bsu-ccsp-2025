@@ -70,6 +70,9 @@ def dump_strings(project):
             print(f"Found string at: {hex(addr)}")
 
 def find_important_func(project):
+
+    # NOTE: for future, save the found_func to a file of sorts 
+
     cfg = project.analyses.CFGFast()
     names = ["main", "_start", "start", "__libc_start_main", "Win", "Success", "good", "check"]
 
@@ -82,10 +85,17 @@ def find_important_func(project):
     for func in found_funcs:
         print(f"{func[0]}")
 
+    return found_funcs
+
 cur_dir = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched")
 for file in cur_dir.iterdir():
     print(f"Opening {file}...")     #DEBUG
     project = angr.Project(file, auto_load_libs=False)
     dump_strings(project)
-    find_important_func(project)
+    found_funcs = find_important_func(project)
+    output_file = f"{file}_found_funcs.txt"
+    print(output_file)
+    with open(output_file, "w") as f:
+        for func in found_funcs:
+            f.write(f"{func[0]}: {hex(func[1])}\n")
     print("\n")
