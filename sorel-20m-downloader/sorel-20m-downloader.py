@@ -21,8 +21,8 @@ params = {"prefix": prefix}
 num_down = 0
 bytes_down = 0
 total_bin_size = 0
-# Set binary download limit to 30MB
-limit = 30000000 
+# Set binary download limit to 3000MB
+limit = 3000000000
 
 # xmlns namespace
 namespace = {"namespace": "http://s3.amazonaws.com/doc/2006-03-01/"}
@@ -41,7 +41,7 @@ while True:
         # Get the Key element
         key = contents.find("namespace:Key", namespace)
         # Update the marker in case the XML was truncated
-        params["marker"] = key
+        params["marker"] = key.text
 
         # Get the binary size
         size = int(contents.find("namespace:Size", namespace).text)
@@ -54,6 +54,7 @@ while True:
         
         # If the binary hasn't been downloaded yet, download it
         if os.path.exists("bin/" + binary_name) == False:
+            print(f"Downloading {binary_name}...")
             s3.download_file("sorel-20m", prefix + binary_name, "bin/" + binary_name)
             bytes_down = bytes_down + size
             num_down = num_down + 1
@@ -65,9 +66,10 @@ while True:
 
     # If the data was truncated and we aren't done,
     # request the next piece of data, otherwise break
-    is_truncated = root.find("namespace:IsTruncated", namespace).text == "True"
+    is_truncated = root.find("namespace:IsTruncated", namespace).text == "true"
     if is_truncated == False:
         break
 
 # Print summary
-print("Downloaded " + str(num_down) + " binaries: " + str(bytes_down) + " bytes")
+print(f"Downloaded {num_down} binaries: {bytes_down} bytes")
+print(f"Total size: {total_bin_size} bytes")
