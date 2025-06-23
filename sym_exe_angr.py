@@ -5,11 +5,12 @@ from pathlib import Path
 import pefile
 import matplotlib.pyplot as plt 
 import networkx as nx 
+import re
 
 # This script writes the Control Flow Graph (CFG) created by angr into a text file
 
-file_path = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched/00000b37a3d68384e9ce2c8f969ba3d839514ec6d3b234ed2285dff2aee644bd_extracted_patched")
-project = angr.Project(file_path, auto_load_libs=False)
+# file_path = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched/00000b37a3d68384e9ce2c8f969ba3d839514ec6d3b234ed2285dff2aee644bd_extracted_patched")
+#project = angr.Project(file_path, auto_load_libs=False)
 
 # Create Control Flow Graph
 def create_cfg(project):
@@ -48,7 +49,43 @@ def main_func_cfg(project):
     plt.title(f"CFG for function: {main_func.name}")
     plt.savefig("cfg_main.png")
 
+def dump_strings(project):
 
-create_cfg(project)
-cfg_visualization(project)
-main_func_cfg(project)
+    # Identifies strings in the data section that relate to success messages (see full list below)
+
+    rodata = None 
+    for obj in project.loader.all_objects:
+        for section in obj.sections:
+            if section.name==".data":
+                rodata = section 
+        if not rodata:
+            print(f"No .data section found for {obj}")
+            return
+    
+    mem = project.loader.memory.load(rodata.vaddr, rodata.memsize)
+    matches = re.finditer(b"(Good job|flag|correct|access granted|success)", mem)
+    if matches:
+        for match in matches:
+            addr = rodata.vaddr + match.start()
+            print(f"Found string at: {hex(addr)}")
+
+def find_important_func(project):
+    cfg = project.analyses.CFGFast()
+    names = ["main", "_start", "start", "__libc_start_main", "Win", "Success", "good", "check"]
+
+    found_funcs = []
+    for func in cfg.kb.functions.values():
+        for target_name in names:
+            if target_name.lower() in func.name.lower():
+                found_funcs.append((func.name, func.addr))
+    
+    for func in found_funcs:
+        print(f"{func[0]}")
+
+cur_dir = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched")
+for file in cur_dir.iterdir():
+    print(f"Opening {file}...")     #DEBUG
+    project = angr.Project(file, auto_load_libs=False)
+    dump_strings(project)
+    find_important_func(project)
+    print("\n")
