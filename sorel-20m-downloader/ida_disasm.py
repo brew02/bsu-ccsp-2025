@@ -3,6 +3,8 @@ import sys
 import os
 import subprocess
 
+import concurrent.futures
+
 def ida_error(message, usage):
     print(message)
     if usage == True:
@@ -46,10 +48,9 @@ def ida_disasm(file_path):
             pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
             pe.write(file_path)
 
-        result = subprocess.run(["ida", "-TPortable", "-B", file_path], capture_output=True, shell=True)
-
-        if result.returncode != 0:
-            return False
+        env = os.environ.copy()
+        env["TVHEADLESS"] = "1"
+        subprocess.run(["idat", "-c", "-A", "-Sanalysis.idc", "-TPortable", file_path], env=env, check=True, shell=True)
         
         os.remove(file_path + ".idb")
 
@@ -91,9 +92,8 @@ os.makedirs("asm", exist_ok=True)
 
 if os.path.isdir(user_path):
     # Loop through the directory if that was specified
-    for file_name in os.listdir(user_path):
-        file_path = os.path.join(user_path, file_name)
-        ida_disasm(file_path)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        [executor.submit(ida_disasm, os.path.join(user_path, file_name)) for file_name in os.listdir(user_path)]
 else:
     ida_disasm(user_path)
 
