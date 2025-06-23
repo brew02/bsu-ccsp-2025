@@ -22,20 +22,20 @@ def ida_disasm(file_path):
     
     file_name = file_path[(index + 1):]
 
-    if os.path.exists("asm/" + file_name + ".asm"):
+    if os.path.exists(f"asm/{file_name}.asm"):
         return True
 
-    print(f"Disassembling {file_path}")
     try:
         pe = pefile.PE(file_path)
 
+        idat = "idat"
+
+        IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10B
+        IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20B
+        PE_MACHINE_INTEL_386 = 0x014C
+        PE_MACHINE_AMD64_K8 = 0x8664
+
         if pe.FILE_HEADER.Machine == 0:
-            IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10B
-            IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20B
-
-            PE_MACHINE_INTEL_386 = 0x014C
-            PE_MACHINE_AMD64_K8 = 0x8664
-
             magic = pe.OPTIONAL_HEADER.Magic
             if magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC:
                 pe.FILE_HEADER.Machine = PE_MACHINE_INTEL_386
@@ -49,16 +49,25 @@ def ida_disasm(file_path):
             pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
             pe.write(file_path)
 
+        if pe.OPTIONAL_HEADER.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+            print("64-bit")
+            idat = idat + "64"
+
         # Run a headless version of IDA text mode (idat)
         env = os.environ.copy()
         env["TVHEADLESS"] = "1"
-        subprocess.run(["idat", "-c", "-A", f"-S{os.getcwd()}\\a.idc", "-TPortable", file_path], env=env, check=True, shell=True)
+        subprocess.run([idat, "-c", "-A", f"-S{os.getcwd()}\\a.idc", "-TPortable", f"{os.getcwd()}\\{file_path}"], env=env, check=True, shell=True)
         
-        os.remove(file_path + ".idb")
-        shutil.move(file_path + ".asm", "./asm")
+        if os.path.exists(file_path + ".asm"):
+            print(f"Disassembled {file_path}")
+            shutil.move(file_path + ".asm", "./asm")
+
+        if os.path.exists(file_path + ".idb"):
+            os.remove(file_path + ".idb")
 
     except Exception as e:
-        print(f"Exception occurred: {e}")
+        print(f"{file_path}: {e}")
+        os.remove(file_path)
         return False
     finally:
         pe.close()

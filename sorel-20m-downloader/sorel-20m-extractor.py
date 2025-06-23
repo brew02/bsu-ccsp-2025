@@ -1,6 +1,8 @@
 import zlib
 import os 
 
+os.makedirs("extracted")
+
 current_path = os.getcwd() + "/bin"
 for filename in os.listdir(current_path):
     filepath = os.path.join(current_path, filename)
