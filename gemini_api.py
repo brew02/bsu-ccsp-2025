@@ -3,8 +3,17 @@ import os
 from pathlib import Path
 import tiktoken 
 
-def truncate_by_tokens(text, max_tokens):
+# This script takes in files from the "disassembled" directory, runs them through Gemini 2.5 Flash with a prompt
+# to obfuscate them, and then saves the output into the "disassembled_obfuscated" directory
 
+# Prerequisites: 
+# 1. Install the gemini-api package
+# 2. Install the tiktoken package
+# 3. Set the GEMINI_API_KEY environment, adding your personal key
+
+MAX_TOKENS = 15000      # Temporary max. Gemini 2.5 Flash input max is over 1M, with an output ~60,000
+
+def truncate_by_tokens(text, max_tokens):
     # Cuts the file to fit the max token length of model input
 
     enc = tiktoken.get_encoding("cl100k_base")
@@ -33,7 +42,7 @@ for file in input_dir.iterdir():
         file_contents = f.read()
 
     print("Checking token size...") #DEBUG
-    file_contents = truncate_by_tokens(file_contents, 15000)    
+    file_contents = truncate_by_tokens(file_contents, MAX_TOKENS)    # Current input max is 15000 
 
     combined_prompt = f"{prompt}\n\n{file_contents}"
 
