@@ -6,7 +6,7 @@ import os
 def disasm_error(message, usage):
     print(message)
     if usage == True:
-        print("Usage: python disasm_recurse.py [file_path | directory_path]")
+        print("Usage: python3 disasm_recurse.py [file_path | directory_path]")
     sys.exit(-1)
 
 def disassemble(decoder, data, address):

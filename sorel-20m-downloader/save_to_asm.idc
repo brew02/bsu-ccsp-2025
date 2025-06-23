@@ -1,6 +1,8 @@
 #include <idc.idc>
 
 static main() {
+    Message("We're disassmbling\n");
+
     auto output_path = ask_file(1, "*.asm", "Save ASM file");
     if(output_path) {
         auto file_handle = fopen(output_path, "w");

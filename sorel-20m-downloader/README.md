@@ -8,11 +8,26 @@ Ensure that requests and boto3 is installed using the following command:
 
 `pip install requests boto3`
 
+## Downloading
+
+Run the following to download the binaries (the limit is hardcoded in the script):
+
+```
+python3 sorel-20m-downloader.py
+```
+
+## Extracting
+
+Run the following to extract the binaries:
+
+```
+python3 sorel-20m-extractor.py
+```
+
 ## Using the IDA Scripts
 
-The `save_to_asm.idc` script can be used as follows in its current state:
+From within
 
-1. Load the file that you want to convert into IDA
-2. Load the script file by navigating to File -> Script file within IDA
-3. Select the `save_to_asm.idc` script file
-4. You should be prompted with a window to save the file
+```
+ida.exe -TPortable -B -DANALYSIS=0xDBFF9FF7 C:\Users\b\source\personal\bsu-ccsp-2025\sorel-20m-downloader\bin\00000b37a3d68384e9ce2c8f969ba3d839514ec6d3b234ed2285dff2aee644bd_extracted
+```

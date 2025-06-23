@@ -2,8 +2,6 @@ import pefile
 import sys
 import os
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 def obf_error(message, usage):
     print(message)
     if usage == True:
@@ -13,19 +11,6 @@ def obf_error(message, usage):
 def obfuscate(file_path):
     if os.path.isfile(file_path) == False:
         return False
-    
-    with open(file_path) as file:
-        data = file.read()
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=0,
-            length_function=len,
-            is_separator_regex=False,
-            separators=["endp", "\n\n", "\n", " ", ""],
-        )
-        texts = text_splitter.create_documents([data])
-        for text in texts:
-            print(text.page_content)
 
     try:
         pe = pefile.PE(file_path)

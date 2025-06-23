@@ -3,6 +3,8 @@ import os
 import wave
 import struct
 
+cwd = os.getcwd()
+
 def b2w_error(message, usage):
     print(message)
     if usage == True:
@@ -19,10 +21,14 @@ def b2w(file_path):
         print(F"{file_path} already exists")
         return False
 
-    audio_path = file_path + ".wav"
-
-    if os.path.exists(audio_path):
-        print(f"{audio_path} already exists")
+    index = file_path.rfind("\\")
+    if index == -1:
+        return False
+    
+    file_name = file_path[(index + 1):]
+    wav_path = f"{cwd}\\wavs\\{file_name}.wav"
+    if os.path.exists(wav_path):
+        print(f"{wav_path} already exists")
         return False
 
     with open(file_path, "br+") as file:
@@ -41,7 +47,7 @@ def b2w(file_path):
         # Unpack the binary as shorts (2 bytes each)
         audio_data = struct.unpack(f"{content_len // 2}h", content[:content_len])
         
-        with wave.open(audio_path, "wb") as wav_file:
+        with wave.open(wav_path, "wb") as wav_file:
             wav_file.setparams((channels, bits_per_sample // 8, frequency, 0, "NONE", "not compressed"))
             wav_file.writeframes(struct.pack(f"{len(audio_data)}h", *audio_data))
 
@@ -65,6 +71,8 @@ if os.path.exists(user_path) == False:
         print("Using relative path")
 else:
     print("Using absolute path")
+
+os.makedirs("wavs", exist_ok=True)
 
 if os.path.isdir(user_path):
     # Loop through the directory if that was specified
