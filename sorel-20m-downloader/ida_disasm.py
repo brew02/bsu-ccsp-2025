@@ -1,6 +1,7 @@
 import pefile
 import sys
 import os
+import subprocess
 
 def ida_error(message, usage):
     print(message)
@@ -12,30 +13,60 @@ def ida_disasm(file_path):
     if os.path.isfile(file_path) == False:
         return False
 
+    index = file_path.rfind("\\")
+    if index == -1:
+        return False
+    
+    file_name = file_path[(index + 1):]
+
+    if os.path.exists("asm/" + file_name + ".asm"):
+        return True
+
+    print(f"Disassembling {file_path}")
     try:
         pe = pefile.PE(file_path)
-        IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10B
-        IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20B
 
-        PE_MACHINE_INTEL_386 = 0x014C
-        PE_MACHINE_AMD64_K8 = 0x8664
+        if pe.FILE_HEADER.Machine == 0:
+            IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10B
+            IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20B
 
-        magic = pe.OPTIONAL_HEADER.Magic
-        if magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-            pe.FILE_HEADER.Machine = PE_MACHINE_INTEL_386
-        elif magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC: 
-            pe.FILE_HEADER.Machine = PE_MACHINE_AMD64_K8
-        else:
-            print("Unsupported PE architecture")
-            pe.close()
+            PE_MACHINE_INTEL_386 = 0x014C
+            PE_MACHINE_AMD64_K8 = 0x8664
+
+            magic = pe.OPTIONAL_HEADER.Magic
+            if magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+                pe.FILE_HEADER.Machine = PE_MACHINE_INTEL_386
+            elif magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC: 
+                pe.FILE_HEADER.Machine = PE_MACHINE_AMD64_K8
+            else:
+                print("Unsupported PE architecture")
+                pe.close()
+                return False
+            
+            pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
+            pe.write(file_path)
+
+        result = subprocess.run(["ida", "-TPortable", "-B", file_path], capture_output=True, shell=True)
+
+        if result.returncode != 0:
             return False
         
-        pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
-        pe.write(file_path)
+        os.remove(file_path + ".idb")
 
-        pe.close()
-    except:
+        with open(file_path + ".asm", 'r') as file_in, open("asm/" + file_name + ".asm", 'w') as file_out:
+            for _ in range(8):
+                next(file_in, None)
+            
+            for line in file_in:
+                file_out.write(line)
+        
+        os.remove(file_path + ".asm")
+
+    except Exception as e:
+        print(f"Exception occurred: {e}")
         return False
+    finally:
+        pe.close()
 
     return True
 

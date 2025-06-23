@@ -26,8 +26,20 @@ python3 sorel-20m-extractor.py
 
 ## Using the IDA Scripts
 
-From within
+Ensure that the path to IDA is in your `PATH` environment variable and run the following:
 
 ```
-ida.exe -TPortable -B -DANALYSIS=0xDBFF9FF7 C:\Users\b\source\personal\bsu-ccsp-2025\sorel-20m-downloader\bin\00000b37a3d68384e9ce2c8f969ba3d839514ec6d3b234ed2285dff2aee644bd_extracted
+python3 ida_disasm.py [file_path | directory_path]
+```
+
+It is recommended to disable automatic helper library hiding by changing this line in the `[ida_dir]/idc/analysis.idc` (`ida_dir` is the same path to IDA that should be in your `PATH`) file from this:
+
+```
+set_inf_attr(INF_AF, get_inf_attr(INF_AF) | AF_DODATA | AF_FINAL);
+```
+
+to this:
+
+```
+set_inf_attr(INF_AF, (get_inf_attr(INF_AF) | AF_DODATA | AF_FINAL) & (~AF_HFLIRT));
 ```
