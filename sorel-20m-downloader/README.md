@@ -31,15 +31,3 @@ Ensure that the path to IDA is in your `PATH` environment variable and run the f
 ```
 python3 ida_disasm.py [file_path | directory_path]
 ```
-
-It is recommended to disable automatic helper library hiding by changing this line in the `[ida_dir]/idc/analysis.idc` (`ida_dir` is the same path to IDA that should be in your `PATH`) file from this:
-
-```
-set_inf_attr(INF_AF, get_inf_attr(INF_AF) | AF_DODATA | AF_FINAL);
-```
-
-to this:
-
-```
-set_inf_attr(INF_AF, (get_inf_attr(INF_AF) | AF_DODATA | AF_FINAL) & (~AF_HFLIRT));
-```

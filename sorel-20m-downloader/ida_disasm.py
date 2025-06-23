@@ -2,6 +2,7 @@ import pefile
 import sys
 import os
 import subprocess
+import shutil
 
 import concurrent.futures
 
@@ -48,20 +49,13 @@ def ida_disasm(file_path):
             pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
             pe.write(file_path)
 
+        # Run a headless version of IDA text mode (idat)
         env = os.environ.copy()
         env["TVHEADLESS"] = "1"
-        subprocess.run(["idat", "-c", "-A", "-Sanalysis.idc", "-TPortable", file_path], env=env, check=True, shell=True)
+        subprocess.run(["idat", "-c", "-A", f"-S{os.getcwd()}\\a.idc", "-TPortable", file_path], env=env, check=True, shell=True)
         
         os.remove(file_path + ".idb")
-
-        with open(file_path + ".asm", 'r') as file_in, open("asm/" + file_name + ".asm", 'w') as file_out:
-            for _ in range(8):
-                next(file_in, None)
-            
-            for line in file_in:
-                file_out.write(line)
-        
-        os.remove(file_path + ".asm")
+        shutil.move(file_path + ".asm", "./asm")
 
     except Exception as e:
         print(f"Exception occurred: {e}")
