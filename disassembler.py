@@ -36,7 +36,7 @@ def disassemble_raw(code, addr, arch, outpath):
 
 def try_pe_disassembly(filepath):
 
-    # If file is a valid PE file, disassembles the binary
+    # If file is a valid PE file, disassembles the PE file
 
     try: 
         pe = pefile.PE(filepath)
@@ -59,6 +59,9 @@ def try_pe_disassembly(filepath):
     return None
 
 def raw_disassembly(filepath, arch="x86", base_addr=0x0):
+
+    # If file is raw binary, this reads the file
+
     with open(filepath, "rb") as f:
         code = f.read()
     return code, base_addr, arch
