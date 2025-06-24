@@ -15,6 +15,7 @@ def is_valid_PE(file_path):
         print(f"Error: {e}")
         return False
     
+# Patches the machine field in the FILE_ HEADER of a PE file
 def patch_machine_field(input_path, output_dir, machine_type):
     try: 
         pe = pefile.PE(input_path)
