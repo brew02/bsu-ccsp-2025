@@ -35,13 +35,13 @@ def patch_machine_field(input_path, output_dir, machine_type):
         return None
 
     
-current_dir = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/bin")     # HARD CODED !! CHANGE 
+dir = os.getcwd()    
+current_dir = os.path.join(dir, "bin")
 
 for file in current_dir.iterdir():
-
     patch_machine_field(file, "patched", 0x14c)
 
-patched_dir = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched")     # HARD CODED !! CHANGE
+patched_dir = os.path.join(dir, "patched")    
 
 for file in patched_dir.iterdir():
 
