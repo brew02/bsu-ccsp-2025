@@ -7,7 +7,7 @@ import shutil
 import concurrent.futures
 
 def ida_error(message:str, usage: bool):
-    print(message)
+    print(f"[-] {message}")
     if usage == True:
         print("[-] Usage: python3 ida_disasm.py [file_path | directory_path]", file=sys.stderr)
     sys.exit(-1)
@@ -42,6 +42,9 @@ def ida_disasm(file_path: str):
         PE_MACHINE_INTEL_386 = 0x014C
         PE_MACHINE_AMD64_K8 = 0x8664
 
+        if pe.OPTIONAL_HEADER.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+            idat = idat + "64"
+
         if pe.FILE_HEADER.Machine == 0:
             magic = pe.OPTIONAL_HEADER.Magic
             if magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC:
@@ -52,10 +55,12 @@ def ida_disasm(file_path: str):
                 print("[-] Unsupported PE architecture", file=sys.stderr)
                 return False
             
-            pe.write(file_path)
+        
+        data = pe.write()
+        pe.close()
 
-        if pe.OPTIONAL_HEADER.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-            idat = idat + "64"
+        with open(file_path, "wb") as file_out:
+            file_out.write(data)
 
         run_idat(idat, file_path)
         
@@ -69,7 +74,7 @@ def ida_disasm(file_path: str):
             os.remove(file_path + ".i64")
 
     except Exception as e:
-        print(f"{file_path}: {e}")
+        print(f"[-] {file_path}: {e}")
         return False
     finally:
         pe.close()
