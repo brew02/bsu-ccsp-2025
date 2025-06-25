@@ -25,8 +25,8 @@ total_bin_size = 0
 # Set an individual binary limit to 2MB
 individual_limit = 2000000
 
-# Set binary download limit to 30MB
-total_limit = 30000000
+# Set binary download limit to 300MB
+total_limit = 300000000
 
 # xmlns namespace
 namespace = {"namespace": "http://s3.amazonaws.com/doc/2006-03-01/"}
@@ -62,7 +62,7 @@ while True:
         
         # If the binary hasn't been downloaded yet, download it
         if os.path.exists("bin/" + binary_name) == False:
-            print(f"Downloading {binary_name}...")
+            print(f"[>] Downloading {binary_name}")
             s3.download_file("sorel-20m", prefix + binary_name, "bin/" + binary_name)
             bytes_down = bytes_down + size
             num_down = num_down + 1
@@ -79,5 +79,5 @@ while True:
         break
 
 # Print summary
-print(f"Downloaded {num_down} binaries: {bytes_down} bytes")
-print(f"Total size: {total_bin_size} bytes")
+print(f"[>] Downloaded {num_down} binaries: {bytes_down} bytes")
+print(f"[>] Total size: {total_bin_size} bytes")
