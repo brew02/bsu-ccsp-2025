@@ -6,27 +6,34 @@ import shutil
 
 import concurrent.futures
 
-def ida_error(message, usage):
+def ida_error(message:str, usage: bool):
     print(message)
     if usage == True:
-        print("Usage: python3 ida_disasm.py [file_path | directory_path]")
+        print("[-] Usage: python3 ida_disasm.py [file_path | directory_path]", file=sys.stderr)
     sys.exit(-1)
 
-def ida_disasm(file_path):
-    if os.path.isfile(file_path) == False:
-        return False
+def run_idat(idat: str, file_path: str):
+    # Run a headless version of IDA text mode (idat)
+    env = os.environ.copy()
+    env["TVHEADLESS"] = "1"
 
-    index = file_path.rfind("\\")
-    if index == -1:
+    command = [idat, '-c', '-A', f"-S{os.path.abspath('a.idc')}", '-TPortable', os.path.abspath(file_path)]
+
+    subprocess.run(command, env=env, check=True, shell=True)
+
+def ida_disasm(file_path: str):
+    if os.path.isfile(file_path) == False:
+        print(f"[-] {file_path} is not a file", file=sys.stderr)
         return False
     
-    file_name = file_path[(index + 1):]
+    file_name = os.path.basename(file_path)
 
     if os.path.exists(f"asm/{file_name}.asm"):
+        print(f"[>] {file_name} already disassembled")
         return True
 
     try:
-        pe = pefile.PE(file_path)
+        pe = pefile.PE(file_path, fast_load=True)
 
         idat = "idat"
 
@@ -42,32 +49,27 @@ def ida_disasm(file_path):
             elif magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC: 
                 pe.FILE_HEADER.Machine = PE_MACHINE_AMD64_K8
             else:
-                print("Unsupported PE architecture")
-                pe.close()
+                print("[-] Unsupported PE architecture", file=sys.stderr)
                 return False
             
-            pe.OPTIONAL_HEADER.Checksum = pe.generate_checksum()
             pe.write(file_path)
 
         if pe.OPTIONAL_HEADER.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-            print("64-bit")
             idat = idat + "64"
 
-        # Run a headless version of IDA text mode (idat)
-        env = os.environ.copy()
-        env["TVHEADLESS"] = "1"
-        subprocess.run([idat, "-c", "-A", f"-S{os.getcwd()}\\a.idc", "-TPortable", f"{os.getcwd()}\\{file_path}"], env=env, check=True, shell=True)
+        run_idat(idat, file_path)
         
         if os.path.exists(file_path + ".asm"):
-            print(f"Disassembled {file_path}")
+            print(f"[+] Disassembled {file_name}")
             shutil.move(file_path + ".asm", "./asm")
 
         if os.path.exists(file_path + ".idb"):
             os.remove(file_path + ".idb")
+        elif os.path.exists(file_path + ".i64"):
+            os.remove(file_path + ".i64")
 
     except Exception as e:
         print(f"{file_path}: {e}")
-        os.remove(file_path)
         return False
     finally:
         pe.close()
@@ -82,15 +84,11 @@ if argv_len != 2:
 
 # Support absolute and relative paths
 user_path = sys.argv[1]
-if os.path.exists(user_path) == False:
-    user_path = os.getcwd() + user_path
-    if os.path.exists(user_path) == False:
-        ida_error(f"Invalid path: {user_path}", True)
-    else:
-        print("Using relative path")
-else:
-    print("Using absolute path")
 
+if os.path.exists(user_path) == False:
+    ida_error(f"Invalid path: {user_path}", True)
+
+print(f"[>] Using {user_path}")
 os.makedirs("asm", exist_ok=True)
 
 if os.path.isdir(user_path):
