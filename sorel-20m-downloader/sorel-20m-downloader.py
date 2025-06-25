@@ -21,8 +21,12 @@ params = {"prefix": prefix}
 num_down = 0
 bytes_down = 0
 total_bin_size = 0
-# Set binary download limit to 3000MB
-limit = 3000000000
+
+# Set an individual binary limit to 2MB
+individual_limit = 2000000
+
+# Set binary download limit to 30MB
+total_limit = 30000000
 
 # xmlns namespace
 namespace = {"namespace": "http://s3.amazonaws.com/doc/2006-03-01/"}
@@ -45,7 +49,11 @@ while True:
 
         # Get the binary size
         size = int(contents.find("namespace:Size", namespace).text)
-        if (total_bin_size + size) > limit:
+
+        if size > individual_limit:
+            continue
+
+        if (total_bin_size + size) > total_limit:
             done = True
             break
         
