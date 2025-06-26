@@ -42,7 +42,7 @@ current_dir = Path(os.path.join(dir, "extracted"))
 for file in current_dir.iterdir():
     patch_machine_field(file, "patched", 0x14c)
 
-patched_dir = os.path.join(dir, "patched")    
+patched_dir = Path(os.path.join(dir, "patched"))    
 
 for file in patched_dir.iterdir():
 
