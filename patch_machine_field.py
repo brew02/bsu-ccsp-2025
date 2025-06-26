@@ -37,7 +37,7 @@ def patch_machine_field(input_path, output_dir, machine_type):
 
     
 dir = os.getcwd()    
-current_dir = os.path.join(dir, "bin")
+current_dir = os.path.join(dir, "extracted")
 
 for file in current_dir.iterdir():
     patch_machine_field(file, "patched", 0x14c)
