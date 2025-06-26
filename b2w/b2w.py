@@ -3,6 +3,8 @@ import os
 import wave
 import struct
 
+cwd = os.getcwd()
+
 def b2w_error(message, usage):
     print(message)
     if usage == True:
@@ -19,10 +21,14 @@ def b2w(file_path):
         print(F"{file_path} already exists")
         return False
 
-    audio_path = file_path + ".wav"
-
-    if os.path.exists(audio_path):
-        print(f"{audio_path} already exists")
+    index = file_path.rfind("\\")
+    if index == -1:
+        return False
+    
+    file_name = file_path[(index + 1):]
+    wav_path = f"{cwd}\\wavs\\{file_name}.wav"
+    if os.path.exists(wav_path):
+        print(f"{wav_path} already exists")
         return False
 
     with open(file_path, "br+") as file:
@@ -41,7 +47,7 @@ def b2w(file_path):
         # Unpack the binary as shorts (2 bytes each)
         audio_data = struct.unpack(f"{content_len // 2}h", content[:content_len])
         
-        with wave.open(audio_path, "wb") as wav_file:
+        with wave.open(wav_path, "wb") as wav_file:
             wav_file.setparams((channels, bits_per_sample // 8, frequency, 0, "NONE", "not compressed"))
             wav_file.writeframes(struct.pack(f"{len(audio_data)}h", *audio_data))
 
@@ -56,22 +62,24 @@ if argv_len != 2:
     b2w_error(f"Invalid number of arguments: {argv_len}", True)
 
 # Support absolute and relative paths
-path = sys.argv[1]
-if os.path.exists == False:
-    path = os.getcwd() + path
-    if os.path.exists == False:
-        b2w_error(f"Invalid path: {path}", True)
+user_path = sys.argv[1]
+if os.path.exists(user_path) == False:
+    user_path = os.getcwd() + user_path
+    if os.path.exists(user_path) == False:
+        b2w_error(f"Invalid path: {user_path}", True)
     else:
         print("Using relative path")
 else:
     print("Using absolute path")
 
-if os.path.isdir(path):
+os.makedirs("wavs", exist_ok=True)
+
+if os.path.isdir(user_path):
     # Loop through the directory if that was specified
-    for file_name in os.listdir(path):
-        file_path = os.path.join(path, file_name)
+    for file_name in os.listdir(user_path):
+        file_path = os.path.join(user_path, file_name)
         b2w(file_path)
 else:
-    b2w(path)
+    b2w(user_path)
 
 print("Converted to .wav")
