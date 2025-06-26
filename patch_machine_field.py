@@ -9,7 +9,7 @@ import os
 def is_valid_PE(file_path):
     try:
         pe = pefile.PE(file_path)
-        print(f"File Header of {file_path}: ", hex(pe.FILE_HEADER.Machine))
+        # print(f"File Header of {file_path}: ", hex(pe.FILE_HEADER.Machine))   # DEBUG
         return True
     except Exception as e:
         print(f"Error: {e}")
@@ -44,9 +44,12 @@ for file in current_dir.iterdir():
 
 patched_dir = Path(os.path.join(dir, "patched"))    
 
+# DEBUG
+"""
 for file in patched_dir.iterdir():
 
     if is_valid_PE(file):
         print(f"SUCCESS: {file.name} is a valid PE file.")
     else:
         print(f"ERROR: {file.name} is NOT a valid PE file.")
+"""
