@@ -120,7 +120,7 @@ os.makedirs("asm", exist_ok=True)
 
 if os.path.isdir(user_path):
     # Loop through the directory if that was specified
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
         [executor.submit(ida_disasm, os.path.join(user_path, file_name)) for file_name in os.listdir(user_path)]
 else:
     ida_disasm(user_path)
