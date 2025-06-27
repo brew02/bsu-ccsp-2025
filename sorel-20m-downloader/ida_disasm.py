@@ -3,6 +3,7 @@ import sys
 import os
 import subprocess
 import shutil
+import re
 
 import concurrent.futures
 
@@ -19,13 +20,21 @@ def run_idat(idat: str, file_path: str):
 
     command = [idat, '-c', '-A', f"-S{os.path.abspath('a.idc')}", '-TPortable', os.path.abspath(file_path)]
 
-    subprocess.run(command, env=env, check=True, shell=True)
+    subprocess.run(command, env=env, check=True, shell=True, timeout=30)
 
 def ida_disasm(file_path: str):
     if os.path.isfile(file_path) == False:
         print(f"[-] {file_path} is not a file", file=sys.stderr)
         return False
     
+    if file_path.endswith('_extracted') == False:
+        return False
+
+    # Deny files larger than 2 MB
+    if os.path.getsize(file_path) > 2000000:
+        os.remove(file_path)
+        return False
+
     file_name = os.path.basename(file_path)
 
     if os.path.exists(f"asm/{file_name}.asm"):
@@ -54,7 +63,6 @@ def ida_disasm(file_path: str):
             else:
                 print("[-] Unsupported PE architecture", file=sys.stderr)
                 return False
-            
         
         data = pe.write()
         pe.close()
@@ -65,6 +73,15 @@ def ida_disasm(file_path: str):
         run_idat(idat, file_path)
         
         if os.path.exists(file_path + ".asm"):
+            with open(file_path + ".asm", "rb+") as file:
+                # strip the file of comments
+                contents = file.read()
+                stripped_contents = contents.decode(encoding='utf-8', errors='ignore')
+                stripped_contents = re.sub(re.compile(";.*(?=\n)"), "", stripped_contents)
+
+                file.seek(0)
+                file.write(stripped_contents.encode(encoding='utf-8', errors='ignore'))
+                file.truncate()
             print(f"[+] Disassembled {file_name}")
             shutil.move(file_path + ".asm", "./asm")
 
@@ -73,6 +90,9 @@ def ida_disasm(file_path: str):
         elif os.path.exists(file_path + ".i64"):
             os.remove(file_path + ".i64")
 
+    except TimeoutError:
+        os.remove(file_path)
+        return False
     except Exception as e:
         print(f"[-] {file_path}: {e}")
         return False

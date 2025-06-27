@@ -25,8 +25,8 @@ total_bin_size = 0
 # Set an individual binary limit to 2MB
 individual_limit = 2000000
 
-# Set binary download limit to 300MB
-total_limit = 300000000
+# Set binary download limit to 9000MB
+total_limit = 9000000000
 
 # xmlns namespace
 namespace = {"namespace": "http://s3.amazonaws.com/doc/2006-03-01/"}

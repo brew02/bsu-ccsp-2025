@@ -7,7 +7,9 @@ static main()
     seg = get_next_seg(seg);
   }
 
-  set_inf_attr(INF_AF, (get_inf_attr(INF_AF) | AF_FINAL) & ~(AF_DODATA | AF_HFLIRT));
+  set_inf_attr(INF_AF, (get_inf_attr(INF_AF) | AF_FINAL) & ~(AF_LVAR | AF_STKARG | AF_REGARG | AF_TRACE | AF_VERSP | AF_ANORET | AF_MEMFUNC | AF_TRFUNC | AF_STRLIT | AF_CHKUNI | AF_DODATA | AF_HFLIRT));
+  set_inf_attr(INF_AF2, 0);
+  set_inf_attr(INF_OUTFLAGS, 0);
 
   if(seg == BADADDR) {
     // plan the entire address space for the final pass
