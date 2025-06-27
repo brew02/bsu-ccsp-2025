@@ -20,7 +20,6 @@ def run_idat(idat: str, file_path: str):
 
     command = [idat, '-c', '-A', f"-S{os.path.abspath('a.idc')}", '-TPortable', os.path.abspath(file_path)]
 
-    # Run the command (timeout after 30 seconds so we don't spend too long on one file)
     subprocess.run(command, env=env, check=True, shell=True, timeout=30)
 
 def ida_disasm(file_path: str):

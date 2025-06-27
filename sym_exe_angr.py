@@ -10,7 +10,7 @@ import re
 # This script writes the Control Flow Graph (CFG) created by angr into a text file
 
 # file_path = Path("/Users/devyn/REU/shared_git/bsu-ccsp-2025/patched/00000b37a3d68384e9ce2c8f969ba3d839514ec6d3b234ed2285dff2aee644bd_extracted_patched")
-#project = angr.Project(file_path, auto_load_libs=False)
+# project = angr.Project(file_path, auto_load_libs=False)
 
 # Create Control Flow Graph
 def create_cfg(project):

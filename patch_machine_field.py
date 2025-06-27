@@ -9,7 +9,7 @@ import os
 def is_valid_PE(file_path):
     try:
         pe = pefile.PE(file_path)
-        print(f"File Header of {file_path}: ", hex(pe.FILE_HEADER.Machine))
+        # print(f"File Header of {file_path}: ", hex(pe.FILE_HEADER.Machine))   # DEBUG
         return True
     except Exception as e:
         print(f"Error: {e}")
@@ -37,16 +37,19 @@ def patch_machine_field(input_path, output_dir, machine_type):
 
     
 dir = os.getcwd()    
-current_dir = os.path.join(dir, "bin")
+current_dir = Path(os.path.join(dir, "extracted"))
 
 for file in current_dir.iterdir():
     patch_machine_field(file, "patched", 0x14c)
 
-patched_dir = os.path.join(dir, "patched")    
+patched_dir = Path(os.path.join(dir, "patched"))    
 
+# DEBUG
+"""
 for file in patched_dir.iterdir():
 
     if is_valid_PE(file):
         print(f"SUCCESS: {file.name} is a valid PE file.")
     else:
         print(f"ERROR: {file.name} is NOT a valid PE file.")
+"""
