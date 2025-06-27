@@ -26,6 +26,9 @@ def ida_disasm(file_path: str):
         print(f"[-] {file_path} is not a file", file=sys.stderr)
         return False
     
+    if file_path.endswith('_extracted') == False:
+        return False
+
     file_name = os.path.basename(file_path)
 
     if os.path.exists(f"asm/{file_name}.asm"):
