@@ -91,6 +91,9 @@ def ida_disasm(file_path: str):
         elif os.path.exists(file_path + ".i64"):
             os.remove(file_path + ".i64")
 
+    except TimeoutError:
+        os.remove(file_path)
+        return False
     except Exception as e:
         print(f"[-] {file_path}: {e}")
         return False
