@@ -30,12 +30,13 @@ def ida_disasm(file_path: str):
     if file_path.endswith('_extracted') == False:
         return False
 
+    file_name = os.path.basename(file_path)
+
     # Deny files larger than 2 MB
     if os.path.getsize(file_path) > 2000000:
+        print(f"[-] {file_name}: Too large, removing file")
         os.remove(file_path)
         return False
-
-    file_name = os.path.basename(file_path)
 
     if os.path.exists(f"asm/{file_name}.asm"):
         print(f"[>] {file_name} already disassembled")
@@ -90,11 +91,12 @@ def ida_disasm(file_path: str):
         elif os.path.exists(file_path + ".i64"):
             os.remove(file_path + ".i64")
 
-    except TimeoutError:
+    except subprocess.TimeoutExpired:
+        print(f"[-] {file_name}: Timeout expired, removing file")
         os.remove(file_path)
         return False
     except Exception as e:
-        print(f"[-] {file_path}: {e}")
+        print(f"[-] {file_name}: {e}")
         return False
     finally:
         pe.close()
