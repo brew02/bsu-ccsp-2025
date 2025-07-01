@@ -1,50 +1,48 @@
-import pefile
-import sys
+#!/bin/env python3
+
+import ollama
 import os
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import sys
 
-def obf_error(message, usage):
-    print(message)
-    if usage == True:
-        print("Usage: python3 obf.py [file_path | directory_path]")
-    sys.exit(-1)
+model_name = "deepseekcoderobfuscator"
 
-def obfuscate(file_path):
-    if os.path.isfile(file_path) == False:
-        return False
+ollama.chat(model=model_name, stream=True)
 
-    try:
-        pe = pefile.PE(file_path)
-        print(f"{pe.OPTIONAL_HEADER.AddressOfEntryPoint:#x}")
-        pe.close()
-    except:
-        return False
+def llm_obf(file_path: str):
+    file_name = os.path.basename(file_path)
+    with open(file_path, errors='ignore') as file, open(os.path.join('../obf/', file_name), 'wb') as file_out:
+        
+        print(f"Obfuscating {file_name}")
+        data = file.read()
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=0,
+            length_function=len,
+            is_separator_regex=False,
+            separators=["endp", "\n\n", "\n"],
+        )
+        texts = text_splitter.create_documents([data])
+        for text in texts:
+            message = fr'"{text.page_content}"'
+            
+            messages = [{'role': 'user', 'content': message}]
+            
+            stream = ollama.chat(model=model_name, messages=messages, stream=True, keep_alive='30m')
 
-    return True
+            for chunk in stream:
+                file_out.write(chunk.message.content.encode(encoding='utf-8', errors='ignore'))
+            print(f"Obfuscated {file_name}")
 
-argv_len = len(sys.argv)
+path = "../asm/"
 
-# We require only two arguments (the first being the name of the script, b2w.py)
-if argv_len != 2:
-    obf_error(f"Invalid number of arguments: {argv_len}", True)
+if os.path.exists(path) == False:
+    print(f"{path} doesn't exist")
+    sys.exit(1)
 
-# Support absolute and relative paths
-user_path = sys.argv[1]
-if os.path.exists(user_path) == False:
-    user_path = os.getcwd() + user_path
-    if os.path.exists(user_path) == False:
-        obf_error(f"Invalid path: {user_path}", True)
-    else:
-        print("Using relative path")
-else:
-    print("Using absolute path")
+os.makedirs("../obf/", exist_ok=True)
 
-if os.path.isdir(user_path):
-    # Loop through the directory if that was specified
-    for file_name in os.listdir(user_path):
-        file_path = os.path.join(user_path, file_name)
-        obfuscate(file_path)
-else:
-    obfuscate(user_path)
+for file_name in os.listdir(path):
+    llm_obf(os.path.join(path, file_name))
 
-print("Obfuscation complete")
 
