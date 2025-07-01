@@ -16,7 +16,7 @@ import sys
 #
 #   python gemini_api.py <input directory path> <prompt file path>
 
-MAX_TOKENS = 60000      # Temporary max. Gemini 2.5 Flash input max is over 1M, with an output ~60,000
+MAX_TOKENS = 250000      # Temporary max. Gemini 2.5 Flash input max is over 1M, with an output ~60,000
 input_dir = Path(sys.argv[1])
 prompt_path = Path(sys.argv[2])
 with open(prompt_path, "r") as f:
@@ -38,14 +38,14 @@ if your_api_key is None:
     raise ValueError("GEMINI_API_KEY is not set in the environment.")
 client = genai.Client(api_key=your_api_key)
 
-os.makedirs("disassembled_obfuscated", exist_ok=True)
-output_dir = "disassembled_obfuscated"
+os.makedirs("important_funcs", exist_ok=True)
+output_dir = "important_funcs"
 
 
 for file in input_dir.iterdir():
     print(f"Opening file: {file}")  #DEBUG
     input_file = Path(file)
-    # "Obfuscation is a technique used to made code unclear or harder to understand, while still maintaining the original functionality. This can be done through the insertion of dummy code, changing the names of registers, or changing the control flow while still maintaining the original functionality. With the following code, obfuscate it so its purpose is unclear, yet all the functionality remains the same. Output only the entire, obfuscated file of code."
+    
     file_contents = ""
     with open(input_file, "r") as f:
         file_contents = f.read()
@@ -60,7 +60,7 @@ for file in input_dir.iterdir():
 
         print("Prompting AI...")    #DEBUG
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.5-flash",
             contents=combined_prompt,
         )
 
@@ -69,6 +69,6 @@ for file in input_dir.iterdir():
         with open(output_file, "w") as f:
             if response:
                 f.write(response.text)
-                print(f"Obfuscated code written to {output_file}")
+                print(f"Important identified functions written to {output_file}")
             else:
                 print(f"Response from AI for {input_file} was empty.")
