@@ -4,8 +4,18 @@ from pathlib import Path
 import sys
 from PIL import Image 
 
+#######################################################################
+# The purpose of this script is to convert both original and obfuscated 
+# assembly files into grayscale images. This is done by compiling the 
+# assembly to machine code, converting it to gray, and creating the 
+# images. 
+#
 # To call:
-# python asm_to_image.py <original_directory> <obfuscated_directory>
+#   python asm_to_image.py <original_directory> <obfuscated_directory>
+#
+# Prerequisites:
+#   nasm
+#######################################################################
 
 def asm_compile(asm_file, out_bin):
     # Compiles the assembly file into binary using nasm
