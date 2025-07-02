@@ -105,11 +105,11 @@ def func_info_from_text(bin, input_dir):
 def asm_compile(asm_file, out_bin):
     # This function compiles the assembly file into a binary.
     obj_file = "temp.o"
-    out_file = out_bin / (asm_file.stem + ".bin")
+    out_file = os.path.join(out_bin, (asm_file.stem + ".bin"))
 
     # Assemble using nasm
-    assemble_cmd = ["nasm", "-f", "elf32", asm_file, "-o", obj_file]
-    link_cmd = ["ld", "-m", "elf_i386", obj_file, "-o", out_file]
+    assemble_cmd = ["nasm", "-f", "macho64", asm_file, "-o", obj_file]
+    link_cmd = ["gcc", obj_file, "-o", out_file]
 
     try:
         print("Assembling and linking:", asm_file)  # DEBUG
@@ -164,5 +164,13 @@ def parallel_se(ori_asm, obf_asm):
     
 
 
-bin_dir = Path(sys.argv[1])
-input_dir = Path(sys.argv[2])
+# bin_dir = Path(sys.argv[1])
+# input_dir = Path(sys.argv[2])
+
+# DEBUG code on small examples 
+ori_asm = Path(sys.argv[1])
+obf_asm = Path(sys.argv[2])
+
+os.makedirs("ex_out_bin", exist_ok=True)
+asm_compile(ori_asm, "out_bin")
+asm_compile(obf_asm, "out_bin")
