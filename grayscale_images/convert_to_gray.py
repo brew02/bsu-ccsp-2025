@@ -3,6 +3,9 @@
 
 from pathlib import Path
 import os
+import sys 
+
+# To call: python convert_to_gray.py <input_dir OR input_file> <output_dir>
 
 # Create the output directory if it doesn't exist 
 os.makedirs("gray_bin", exist_ok=True)
@@ -26,27 +29,42 @@ def binToGray(input_file):
         # with open(output_file, "wb") as f_out:
         #    f_out.write(gray_data)
 
-input_dir = Path("decompressed")
-output_dir = Path("gray_bin")
+input_var = Path(sys.argv[1])
+# output_var = Path(sys.argv[2])
+output_var = Path("gray_bin")
 
 num_success = 0
 num_failed = 0
 
-for file in input_dir.iterdir():
-    if not file.is_file():
-        continue
-
+if input_var.is_file():
     try:
-        gray_data = binToGray(file)
+        gray_data = binToGray(input_var)
     except Exception as e:
-        print(f"Failed to convert {file.name} to gray: {e}")
-        num_failed += 1
-        continue
+        print(f"Failed to convert {input_var.name} to gray: {e}")
 
-    print(f"Converted: {file.name} to gray")
-    output_file = output_dir / (file.name + ".gray")
+    print(f"Converted: {input_var.name} to gray")
+    output_file = output_var / (input_var.name + ".gray")
     output_file.write_bytes(gray_data)
-    num_success += 1
+    print(f"Saved to: {output_file}.")
+else: 
 
-# Summary 
-print(f"\nDone. {num_success} files converted. {num_failed} failed.")
+    for file in input_var.iterdir():
+        if not file.is_file():
+            continue
+        if not file.suffix == '.bin':
+            continue
+
+        try:
+            gray_data = binToGray(file)
+        except Exception as e:
+            print(f"Failed to convert {file.name} to gray: {e}")
+            num_failed += 1
+            continue
+
+        print(f"Converted: {file.name} to gray")
+        output_file = output_var / (file.name + ".gray")
+        output_file.write_bytes(gray_data)
+        num_success += 1
+
+    # Summary 
+    print(f"\nDone. {num_success} files converted. {num_failed} failed.")
