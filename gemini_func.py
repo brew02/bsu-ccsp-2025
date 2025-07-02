@@ -16,7 +16,7 @@ import sys
 #
 #   python gemini_api.py <input directory path> <prompt file path>
 
-MAX_TOKENS = 250000      # Temporary max. Gemini 2.5 Flash input max is over 1M, with an output ~60,000
+MAX_TOKENS = 60000      # Temporary max. Gemini 2.5 Flash input max is over 1M, with an output ~60,000
 input_dir = Path(sys.argv[1])
 prompt_path = Path(sys.argv[2])
 with open(prompt_path, "r") as f:
@@ -43,32 +43,35 @@ output_dir = "important_funcs"
 
 
 for file in input_dir.iterdir():
-    print(f"Opening file: {file}")  #DEBUG
-    input_file = Path(file)
-    
-    file_contents = ""
-    with open(input_file, "r") as f:
-        file_contents = f.read()
-    if not file_contents:
-        print(f"File {input_file} is empty.")
-        break 
-    else:
-        print("Checking token size...") #DEBUG
-        file_contents = truncate_by_tokens(file_contents, MAX_TOKENS)    # Current input max is 15000 
+    if file.name.endswith(".asm"): 
+        print(f"Opening file: {file}")  #DEBUG
+        input_file = Path(file)
 
-        combined_prompt = f"{prompt}\n\n{file_contents}"
+        file_contents = ""
+        with open(input_file, "r") as f:
+            file_contents = f.read()
+        if not file_contents:
+            print(f"File {input_file} is empty.")
+            break 
+        else:
+            print("Checking token size...") #DEBUG
+            file_contents = truncate_by_tokens(file_contents, MAX_TOKENS)
 
-        print("Prompting AI...")    #DEBUG
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=combined_prompt,
-        )
+            combined_prompt = f"{prompt}\n\n{file_contents}"
 
-        # print("Writing obfuscated to file...")  #DEBUG
-        output_file = os.path.join(output_dir, f"{input_file.stem}.asm")
-        with open(output_file, "w") as f:
-            if response:
-                f.write(response.text)
-                print(f"Important identified functions written to {output_file}")
-            else:
-                print(f"Response from AI for {input_file} was empty.")
+            print("Prompting AI...")    #DEBUG
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=combined_prompt,
+            )
+
+            # print("Writing obfuscated to file...")  #DEBUG
+            output_file = os.path.join(output_dir, f"{input_file.stem}.asm")
+            with open(output_file, "w") as f:
+                if response:
+                    f.write(response.text)
+                    print(f"Important identified functions written to {output_file}")
+                else:
+                    print(f"Response from AI for {input_file} was empty.")
+    else: 
+        print(f"File {input_file} is not an assembly file.")
