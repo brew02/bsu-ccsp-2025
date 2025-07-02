@@ -1,0 +1,22 @@
+Obfuscation is the process of making small changes in code in order to make its purpose unclear or hard to understand, while maintaining the original functionality. This is a common technique used with malicious code in order to evade detection. One common technique is Register Subsitution. In this technique, one register is replaced with another throughout a section of code. The main goal is to maintain functionality of the code while using different registers to obscure the oeprations being performed. This usually invloved registers that are not used simultaneously or whose contents are not needed at the same point in the code. An example is:
+Original Code:
+1 83C01C ADD EAX, 28
+2 8BE5 MOV ESP, EBP
+3 83E001 AND EAX, 1
+4 0F94C1 SETE CL
+5 42 INC EDX
+6 83EF01 SUB EDI, 1
+7 56 PUSH ESI
+8 3BF9 CMP EDI, ECX
+9 57 PUSH EDI
+Original Code after Register Subsitution:
+1 83C31C ADD EBX, 28 ;Swap EAX by EBX
+2 8BE5 MOV ESP, EBP
+3 83E301 AND EBX, 1 ;Swap EAX by EBX
+4 0F94C1 SETE CL
+5 42 INC EDX
+6 83EF01 SUB EDI, 1
+7 56 PUSH ESI
+8 3BF9 CMP EDI, ECX
+9 57 PUSH EDI
+Given the following assembly code, for two or three sections, subsitute one register for another while ensuring the functionality remains the same. Output the full, edited code without comments. If there are no functionality-preserving ways to perform register subsitution in the entire code, simply output the unedited code. 
