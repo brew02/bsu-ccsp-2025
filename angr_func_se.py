@@ -125,13 +125,16 @@ def asm_compile(asm_file, out_bin):
 def parallel_se(ori_asm, obf_asm):
     # This function is intended to run the symbolic execution in parallel for the original and obfuscated binaries.
     out_bin = os.makedirs("out_bin", exist_ok=True)
-    print("Compiling assembly files...") # DEBUG
-    asm_compile(ori_asm, out_bin)
-    asm_compile(obf_asm, out_bin)
+    #print("Compiling assembly files...") # DEBUG
+    #asm_compile(ori_asm, out_bin)
+    #asm_compile(obf_asm, out_bin)
 
     # DEBUG: at this point, there should be two binaries in the out_bin, with stem.bin
-    ori_file = out_bin / (ori_asm.stem + ".bin")
-    obf_file = out_bin / (obf_asm.stem + ".bin")
+    #ori_file = out_bin / (ori_asm.stem + ".bin")
+    #obf_file = out_bin / (obf_asm.stem + ".bin")
+
+    ori_file = Path(ori_asm)
+    obf_file = Path(obf_asm)
 
     # Parallel symbolic execution 
     ori_pj = angr.Project(ori_file, auto_load_libs=False)
@@ -168,9 +171,8 @@ def parallel_se(ori_asm, obf_asm):
 # input_dir = Path(sys.argv[2])
 
 # DEBUG code on small examples 
-ori_asm = Path(sys.argv[1])
-obf_asm = Path(sys.argv[2])
+ori_bin = Path(sys.argv[1])
+obf_bin = Path(sys.argv[2])
 
 os.makedirs("ex_out_bin", exist_ok=True)
-asm_compile(ori_asm, "out_bin")
-asm_compile(obf_asm, "out_bin")
+parallel_se(ori_bin, obf_bin)
