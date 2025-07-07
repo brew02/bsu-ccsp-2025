@@ -1,0 +1,30 @@
+Obfuscation is the process of making small changes in code in order to make its purpose unclear or hard to understand, while maintaining the original functionality. This is a common technique used with malicious code in order to evade detection. One common technique is Control Flow Change. This technique rearranges the order of instructions without altering the program's overall functionality. The goal is to make the code harder to understand and harder to reverse-engineer, while making sure the code still functions the same. Control Flow Change leverages the fact that some instructions can be reordered safely if they are independent, meaning they do not depend on each other's results. An example is:
+Original Code:
+1 83C01C ADD EAX, 28
+2 8BE5 MOV ESP, EBP
+3 83E001 AND EAX, 1
+4 0F94C1 SETE CL
+5 42 INC EDX
+6 83EF01 SUB EDI, 1
+7 56 PUSH ESI
+8 3BF9 CMP EDI, ECX
+9 57 PUSH EDI
+Original Code after Control Flow Change:
+1 EB JMP sec1
+2 sec3:
+3 83EF01 SUB EDI, 1
+4 56 PUSH ESI
+5 3BF9 CMP EDI, ECX
+6 57 PUSH EDI
+7 EB JMP sec4
+8 sec2:
+9 83E001 AND EAX, 1
+10 0F94C1 SETE CL
+11 42 INC EDX
+12 EB JMP sec3
+13 sec1:
+14 83C01C ADD EAX, 28
+15 8BE5 MOV ESP, EBP
+16 EB JMP sec2
+17 sec4:
+Given the following assembly code, determine which instructions can be safley reordered, meaning their reordering will not change the overall functionality of the code. Rearrange the identified independent instructions to achieve obfuscation. Output the full, edited code without comments.

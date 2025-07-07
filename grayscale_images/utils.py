@@ -86,6 +86,9 @@ def compare_pixel_hists(sample_name1, sample_name2):
     # Compares the pixel intensity histograms of two images by plotting them on the same graph
     # Assumes pixel intensity data is stored in text files named <sample_name>_pixel_intensity.txt
 
+    pixel_hist(sample_name1)
+    pixel_hist(sample_name2)
+
     image_path1 = Path(f"images/{sample_name1}_pixel_intensity.txt")
     image_path1 = image_path1.resolve()
 

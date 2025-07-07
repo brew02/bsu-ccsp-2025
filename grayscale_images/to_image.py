@@ -5,6 +5,10 @@ from PIL import Image
 from pathlib import Path
 import os
 import numpy as np
+import sys
+
+# To call: 
+#      python to_image.py <input_dir>
 
 # Create the output directory if it doesn't exist
 os.makedirs("images", exist_ok=True)
@@ -33,7 +37,8 @@ def gray_code_to_image(gray_code, width, height):
     image.putdata(list(gray_code))
     return image
 
-input_dir = Path("gray_bin")
+# input_dir = Path("gray_bin")
+input_dir = Path(sys.argv[1])
 output_dir = Path("images")
 dimensions_dir = Path("images/dimensions")
 
@@ -44,6 +49,10 @@ num_file = 0
 for file in input_dir.iterdir():
     if not file.is_file():
         continue
+    # Check if the file is a gray code file (e.g., .gray)
+    if file.suffix != ".gray":
+        print(f"Skipping non-gray file: {file.name}")
+        continue
 
     try:
         gray_code = file.read_bytes()
@@ -52,6 +61,7 @@ for file in input_dir.iterdir():
         
         # The width is fixed depending on the length of the data and the height will vary 
         # See Nataraj et al. 2010 for details
+        
         if len(gray_code) < 10000:
             width = 32
             height = len(gray_code) // width
@@ -86,7 +96,7 @@ for file in input_dir.iterdir():
         continue
 
     # Save the image 
-    output_file = output_dir / (file.name + ".png")
+    output_file = output_dir / (file.name + "2.png")
     image.save(output_file)
     print(f"Converted: {file.name} to image")
 
