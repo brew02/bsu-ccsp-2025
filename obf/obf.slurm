@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #SBATCH --partition=gpu-volatile
-#SBATCH --cpus-per-task=16
-#SBATCH --gpus=7
-#SBATCH --gres=gpu:7
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=100G
+#SBATCH --gpus=2
+#SBATCH --gres=gpu:2
 
 cd $SLURM_SUBMIT_DIR
 
@@ -12,8 +13,8 @@ module load cuda/12.2
 export PATH=~/ollama/bin:$PATH
 
 nohup ollama serve > ollama.$SLURM_JOB_ID.log 2>&1 &
-echo $! > ollama_pid_for$SLURM_JOB_ID
-sleep 5s
+echo $! > ollama_pid_for_$SLURM_JOB_ID.pid
+sleep 20s
 
 cd ~/ollama/
 source .env/bin/activate
@@ -22,6 +23,6 @@ which python3
 
 python3 obf.py
 deactivate
-cd ..
-kill $(cat ollama_pid_for$SLURM_JOB_ID)
-
+cd $SLURM_SUBMIT_DIR
+kill $(cat ollama_pid_for_$SLURM_JOB_ID.pid)
+rm ollama_pid_for_$SLURM_JOB_ID.pid
