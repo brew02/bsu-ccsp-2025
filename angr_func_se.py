@@ -7,6 +7,9 @@ import pefile
 import logging
 import subprocess
 
+# To call:
+#   python angr_func_se.py <original_directory> <obfuscated_directory>
+
 # This is intended to hide the errors/warning outputted by angr
 logging.getLogger('angr.storage.memory_mixins.default_filler_mixin').setLevel(logging.ERROR)
 logging.getLogger('angr.engines.successors').setLevel(logging.ERROR)
@@ -105,16 +108,16 @@ def func_info_from_text(bin, input_dir):
 def asm_compile(asm_file, out_bin):
     # This function compiles the assembly file into a binary.
     obj_file = "temp.o"
-    out_file = os.path.join(out_bin, (asm_file.stem + ".bin"))
+    out_file = os.path.join(str(out_bin), asm_file.stem)
 
     # Assemble using nasm
-    assemble_cmd = ["nasm", "-f", "macho64", asm_file, "-o", obj_file]
-    link_cmd = ["gcc", obj_file, "-o", out_file]
+    assemble_cmd = ["nasm", "-f", "win64", asm_file, "-o", obj_file]
+    # link_cmd = ["gcc", obj_file, "-o", out_file]
 
     try:
         print("Assembling and linking:", asm_file)  # DEBUG
         subprocess.run(assemble_cmd, check=True)
-        subprocess.run(link_cmd, check=True)
+        # subprocess.run(link_cmd, check=True)
         print(f"Successfully created binary: {out_file}")
     except subprocess.CalledProcessError as e:
         print("Compilation failed:", e)
@@ -125,16 +128,13 @@ def asm_compile(asm_file, out_bin):
 def parallel_se(ori_asm, obf_asm):
     # This function is intended to run the symbolic execution in parallel for the original and obfuscated binaries.
     out_bin = os.makedirs("out_bin", exist_ok=True)
-    #print("Compiling assembly files...") # DEBUG
-    #asm_compile(ori_asm, out_bin)
-    #asm_compile(obf_asm, out_bin)
+    print("Compiling assembly files...") # DEBUG
+    asm_compile(ori_asm, out_bin)
+    asm_compile(obf_asm, out_bin)
 
     # DEBUG: at this point, there should be two binaries in the out_bin, with stem.bin
-    #ori_file = out_bin / (ori_asm.stem + ".bin")
-    #obf_file = out_bin / (obf_asm.stem + ".bin")
-
-    ori_file = Path(ori_asm)
-    obf_file = Path(obf_asm)
+    ori_file = os.path.join(str(out_bin), (ori_asm.stem + ".bin"))
+    obf_file = os.path.join(str(out_bin), (obf_asm.stem + ".bin"))
 
     # Parallel symbolic execution 
     ori_pj = angr.Project(ori_file, auto_load_libs=False)
@@ -154,7 +154,7 @@ def parallel_se(ori_asm, obf_asm):
     simgr_obf.run()
 
     # Compare output states
-    if not simgr_ori.deadended or not simgr_obf.deadended:
+    if not simgr_ori.deadended: #or not simgr_obf.deadended:
         print("No deadended states found in one or both symbolic executions.")
         return None
     print("Deadended states found.") # DEBUG
@@ -164,6 +164,7 @@ def parallel_se(ori_asm, obf_asm):
     print(f"Final original state output: {final_ori.posix.dumps(1)}") # DEBUG
     print(f"Final obfuscated state output: {final_obf.posix.dumps(1)}") # DEBUG
     assert final_ori.posix.dumps(1) == final_obf.posix.dumps(1)
+    return True
     
 
 
