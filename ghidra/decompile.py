@@ -7,9 +7,15 @@ import os
 from pathlib import Path
 import sys
 
+# This file uses Ghidra to decompile a binary into C code 
+# 
+# To call:
+#       python decompile.py <binary_directory>
+#
+
+# HARD CODED FOR THE MOMENT 
 PROJECT_LOCATION = "/Users/devyn/ghidra_projects"
 PROJECT_NAME = "highLevel_ghidra"
-BINARY_PATH = "/Users/devyn/REU/extracted/0000029bfead495a003e43a7ab8406c6209ffb7d5e59dd212607aa358bfd66ea_extracted"
 
 def decompile(project_location, project_name, binary_path, outpath):
 
@@ -30,7 +36,7 @@ def decompile(project_location, project_name, binary_path, outpath):
         decomp_api.initialize()
 
         any_failure = False
-        
+
         for func in functions:
             result = decomp_api.decompile(func, 60)
             if result is not None:
@@ -46,6 +52,7 @@ def decompile(project_location, project_name, binary_path, outpath):
 
 os.makedirs("decompiled", exist_ok=True)
 out_dir = Path("decompiled")
+
 input_dir = Path(sys.argv[1])
 
 for file in input_dir.iterdir():
