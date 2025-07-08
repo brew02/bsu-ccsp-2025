@@ -2,47 +2,86 @@
 
 import ollama
 import os
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import sys
+import re
 
-model_name = "deepseekcoderobfuscator"
+from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
 
-ollama.chat(model=model_name, stream=True)
+model_name = "codestral-obf"
+
+ollama.chat(model=model_name, keep_alive='30m')
+
+def classify_lines(content: str):
+    lines = content.splitlines()
+    num_lines = len(lines)
+    classified_lines = [('', False)] * num_lines
+
+    # For each line, determine if it is obfuscatable or not
+    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|segment|ends|686p|mmx|model)\b.*|\s*)$\n?"
+
+    index = 0
+    for line in lines:
+        if not line or line.isspace():
+            continue
+
+        is_obfuscatable = not bool(re.search(regex, line))
+        if classified_lines[index][1] == is_obfuscatable:
+            if classified_lines[index]:
+                classified_lines[index] = (f"{classified_lines[index][0]}\n{line}", is_obfuscatable)
+            else:
+                classified_lines[index] = (line, is_obfuscatable)
+        else:
+            index = index + 1
+            classified_lines[index] = (line, is_obfuscatable)
+        
+    return classified_lines
 
 def llm_obf(file_path: str):
     file_name = os.path.basename(file_path)
-    with open(file_path, errors='ignore') as file, open(os.path.join('../obf/', file_name), 'wb') as file_out:
-        
-        print(f"Obfuscating {file_name}")
-        data = file.read()
+
+    if os.path.isfile(file_path) == False:
+        print(f"[-] {file_name} is not a file", file=sys.stderr)
+        return False
+    
+    new_file_path = os.path.join('./obf/', file_name)
+    if os.path.exists(new_file_path):
+        print(f"[>] {file_name} already obfuscated")
+        return True
+
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as file_in, open(new_file_path, 'w') as file_out:
+        print(f"[>] Obfuscating {file_name}")
+        data = file_in.read()
+        lines = classify_lines(data)
+
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
+            is_separator_regex=False,
+            separators=["\n"],
+            chunk_size=2000,
             chunk_overlap=0,
             length_function=len,
-            is_separator_regex=False,
-            separators=["endp", "\n\n", "\n"],
+            strip_whitespace = False,
         )
-        texts = text_splitter.create_documents([data])
-        for text in texts:
-            message = fr'"{text.page_content}"'
-            
-            messages = [{'role': 'user', 'content': message}]
-            
-            stream = ollama.chat(model=model_name, messages=messages, stream=True, keep_alive='30m')
 
-            for chunk in stream:
-                file_out.write(chunk.message.content.encode(encoding='utf-8', errors='ignore'))
-            print(f"Obfuscated {file_name}")
+        for line in lines:
+            # Obfuscatable line
+            if line[1]:
+                texts = text_splitter.split_text(line[0])
+                for text in texts:
+                    messages = [{'role': 'user', 'content': text}]
+                    response = ollama.chat(model=model_name, messages=messages, keep_alive='30m')
+                    file_out.write(f"{response.message.content}\n")
+            else:
+                file_out.write(f"{line[0]}\n")
+            
+        print(f"[+] Obfuscated {file_name}")
 
-path = "../asm/"
+path = "./asm/"
 
 if os.path.exists(path) == False:
-    print(f"{path} doesn't exist")
+    print(f"[-] {path} doesn't exist", file=sys.stderr)
     sys.exit(1)
 
-os.makedirs("../obf/", exist_ok=True)
+os.makedirs("./obf/", exist_ok=True)
 
 for file_name in os.listdir(path):
     llm_obf(os.path.join(path, file_name))
-
-
