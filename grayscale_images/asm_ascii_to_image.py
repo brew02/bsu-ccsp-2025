@@ -10,7 +10,7 @@ import sys
 #       python asm_ascii_to_image.py <input_directory> <OPTIONAL: 2nd_input_directory>
 # 
 
-TARGET_SIZE = 256*256
+TARGET_SIZE = 512
 
 def asm_to_image(filepath, target_size, outpath):
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -20,17 +20,18 @@ def asm_to_image(filepath, target_size, outpath):
     # Convert characters to ASCII values (0–255)
     ascii_values = [ord(c) for c in content]
 
-    if len(ascii_values) < target_size:
+    target_grid = target_size * target_size
+    if len(ascii_values) < target_grid:
         # Pads if dimensions do not match 256*256
         print(f"Padding {filepath.name} to match dimensions.")      # DEBUG
-        ascii_values += [0] * (target_size - len(ascii_values))
+        ascii_values += [0] * (target_grid - len(ascii_values))
     else:
         # Truncates the content if it is larger than 256*256
         print(f"Truncating {filepath.name} to match dimensions.")    # DEBUG
-        ascii_values = ascii_values[:target_size]
+        ascii_values = ascii_values[:target_grid]
 
     # Converts to 2D array
-    image_array = np.array(ascii_values, dtype=np.uint8).reshape((256, 256))
+    image_array = np.array(ascii_values, dtype=np.uint8).reshape((target_size, target_size))
 
     # Fixed width but varying height
     """width = 256
