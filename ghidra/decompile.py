@@ -28,6 +28,12 @@ def decompile(project_location, project_name, binary_path, outpath):
         ) as flat_api:
 
         program = flat_api.getCurrentProgram()
+        listing, start, end = get_text(program)
+        if listing is None:
+            listing = program
+            start = program.getMinAddress()
+            end = program.getMaxAddress()
+
         function_manager = program.getFunctionManager()
         functions = function_manager.getFunctions(True)
 
@@ -36,9 +42,12 @@ def decompile(project_location, project_name, binary_path, outpath):
         decomp_api.initialize()
 
         any_failure = False
+        result = None
 
         for func in functions:
-            result = decomp_api.decompile(func, 60)
+            entry = func.getEntryPoint()
+            if start <= entry <= end:
+                result = decomp_api.decompile(func, 60)
             if result is not None:
                 with open(outpath, "w") as f:
                     f.write(result)
@@ -49,6 +58,21 @@ def decompile(project_location, project_name, binary_path, outpath):
             print(f"Failure to decompile {binary_path.stem}.")
         else:
             print(f"Successfully decompiled and saved to {outpath}.\n")
+
+def get_text(program):
+    memory = program.getMemory()
+
+    # Iterate through memory blocks to find the ".text" section
+    for block in memory.getBlocks():
+        if block.getName() == "CODE_0":
+            # Extract the data (example using Listing)
+            listing = program.getListing()
+            start = block.getStart()
+            end = block.getEnd()
+            print("Found code section.")
+            return listing, start, end
+    print("Couldn't find code section. Decompiling the full binary.")
+    return None, None, None
 
 os.makedirs("decompiled", exist_ok=True)
 out_dir = Path("decompiled")

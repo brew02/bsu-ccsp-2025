@@ -69,6 +69,6 @@ for file in input_dir.iterdir():
         with open(output_file, "w") as f:
             if response:
                 f.write(response.text)
-                print(f"Obfuscated code written to {output_file}")
+                print(f"Obfuscated code written to {output_file}.\n")
             else:
-                print(f"Response from AI for {input_file} was empty.")
+                print(f"Response from AI for {input_file} was empty.\n")
