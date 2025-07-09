@@ -3,11 +3,12 @@ from PIL import Image
 from pathlib import Path
 import os
 import sys
+import subprocess
 
 # This converts a .asm file to grayscale image using the ASCII values of the assembly instructions
 # 
 # To call:
-#       python asm_ascii_to_image.py <input_directory> <OPTIONAL: 2nd_input_directory>
+#       python asm_ascii_to_image.py <asm_input_directory> <OPTIONAL: 2nd_input_directory>
 # 
 
 TARGET_SIZE = 512
@@ -22,11 +23,11 @@ def asm_to_image(filepath, target_size, outpath):
 
     target_grid = target_size * target_size
     if len(ascii_values) < target_grid:
-        # Pads if dimensions do not match 256*256
+        # Pads if dimensions do not match target_grid
         print(f"Padding {filepath.name} to match dimensions.")      # DEBUG
         ascii_values += [0] * (target_grid - len(ascii_values))
     else:
-        # Truncates the content if it is larger than 256*256
+        # Truncates the content if it is larger than target_grid
         print(f"Truncating {filepath.name} to match dimensions.")    # DEBUG
         ascii_values = ascii_values[:target_grid]
 
