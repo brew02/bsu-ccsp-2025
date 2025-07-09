@@ -5,9 +5,9 @@ import os
 import sys
 import re
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter, CharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-model_name = "codestral-obf"
+model_name = "cdstrl-obf"
 
 ollama.chat(model=model_name, keep_alive='30m')
 
@@ -49,6 +49,7 @@ def llm_obf(file_path: str):
         return True
 
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as file_in, open(new_file_path, 'w') as file_out:
+        file_out.write("; codestral:22b\n")
         print(f"[>] Obfuscating {file_name}")
         data = file_in.read()
         lines = classify_lines(data)
@@ -63,13 +64,18 @@ def llm_obf(file_path: str):
         )
 
         for line in lines:
+            if not line[0] or line[0].isspace():
+                continue
+
             # Obfuscatable line
             if line[1]:
                 texts = text_splitter.split_text(line[0])
                 for text in texts:
                     messages = [{'role': 'user', 'content': text}]
                     response = ollama.chat(model=model_name, messages=messages, keep_alive='30m')
-                    file_out.write(f"{response.message.content}\n")
+
+                    content = re.sub(r"^.*(?:assembly|obfuscated|`).*$", "", response.message.content)
+                    file_out.write(f"{content}\n")
             else:
                 file_out.write(f"{line[0]}\n")
             
