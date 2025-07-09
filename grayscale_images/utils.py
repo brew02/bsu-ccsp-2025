@@ -128,6 +128,7 @@ def compare_pixel_hists(sample_name1, sample_name2):
     else:
         print("One or both of the specified pixel intensity files do not exist.")
 
+"""s
 def spatial_analysis(sample_name1, sample_name2):
     # Performs spatial analysis on two images by calculating the ICP (Iterative Closest Point)
 
@@ -154,6 +155,7 @@ def spatial_analysis(sample_name1, sample_name2):
         print(f"ICP Result: {icp_result}")
     else:
         print("One or both of the specified images do not exist.")
+"""
 
 def calculate_icp(sample_name1, sample_name2):
     # Calculates the ICP (Iterative Closest Point) between two images
