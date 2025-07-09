@@ -38,8 +38,8 @@ if your_api_key is None:
     raise ValueError("GEMINI_API_KEY is not set in the environment.")
 client = genai.Client(api_key=your_api_key)
 
-os.makedirs("disassembled_obfuscated", exist_ok=True)
-output_dir = "disassembled_obfuscated"
+os.makedirs("gemini_obfuscated", exist_ok=True)
+output_dir = "gemini_obfuscated"
 
 
 for file in input_dir.iterdir():
@@ -65,10 +65,10 @@ for file in input_dir.iterdir():
         )
 
         # print("Writing obfuscated to file...")  #DEBUG
-        output_file = os.path.join(output_dir, f"{input_file.stem}.asm")
+        output_file = os.path.join(output_dir, f"obf_{input_file.stem}.asm")
         with open(output_file, "w") as f:
             if response:
                 f.write(response.text)
-                print(f"Obfuscated code written to {output_file}")
+                print(f"Obfuscated code written to {output_file}.\n")
             else:
-                print(f"Response from AI for {input_file} was empty.")
+                print(f"Response from AI for {input_file} was empty.\n")

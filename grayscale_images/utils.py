@@ -4,6 +4,10 @@ from IPython.display import display
 from matplotlib import pyplot as plt
 import numpy as np
 import ICP 
+from skimage import data, io
+from skimage.util import img_as_float
+from skimage.metrics import structural_similarity as ssim
+
 
 def get_image(sample_name):
     # Displays an image of a given sample
@@ -158,3 +162,20 @@ def calculate_icp(sample_name1, sample_name2):
         print("ICP calculation completed successfully.")
     else:
         print("One or both of the specified images do not exist.")
+
+def ssim_comparison(img1_path, img2_path):
+    img1 = np.array(Image.open(img1_path).convert("L"))
+    img2 = np.array(Image.open(img2_path).convert("L"))
+
+    score, diff = ssim(img1, img2, full=True)
+    plt.imshow(diff, cmap='gray')
+    plt.title(f"SSIM difference map\nSSIM: {score:.4f}")
+    plt.axis('off')
+    plt.show()
+
+# Mean squared error 
+def mse_comp(img1_path, img2_path):
+    img1 = np.array(Image.open(img1_path).convert("L"))
+    img2 = np.array(Image.open(img2_path).convert("L"))
+    
+    return np.mean((img1.astype("float32") - img2.astype("float32")) ** 2)

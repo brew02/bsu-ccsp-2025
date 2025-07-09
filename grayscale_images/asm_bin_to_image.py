@@ -11,7 +11,7 @@ from PIL import Image
 # images. 
 #
 # To call:
-#   python asm_to_image.py <original_directory> <obfuscated_directory>
+#   python asm_bin_to_image.py <original_directory> <obfuscated_directory>
 #
 # Input:
 #   <original_directory> contains the assembly (".asm") files of original code 
