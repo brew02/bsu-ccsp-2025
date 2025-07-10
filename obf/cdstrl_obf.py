@@ -38,10 +38,6 @@ def classify_lines(content: str):
 
 def llm_obf(file_path: str):
     file_name = os.path.basename(file_path)
-
-    if os.path.isfile(file_path) == False:
-        print(f"[-] {file_name} is not a file", file=sys.stderr)
-        return False
     
     new_file_path = os.path.join('./obf/', file_name)
     if os.path.exists(new_file_path):
@@ -89,5 +85,17 @@ if os.path.exists(path) == False:
 
 os.makedirs("./obf/", exist_ok=True)
 
+all_files = []
 for file_name in os.listdir(path):
-    llm_obf(os.path.join(path, file_name))
+    full_path = os.path.join(path, file_name)
+    if not os.path.isfile(full_path):
+        continue
+
+    try:
+        all_files.append((full_path, os.path.getsize(full_path)))
+    except OSError:
+        continue
+
+all_sorted_files = sorted(all_files, key=lambda x: x[1], reverse=False)
+for file in all_sorted_files:
+    llm_obf(file[0])
