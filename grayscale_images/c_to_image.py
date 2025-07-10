@@ -5,13 +5,21 @@ import os
 import sys
 import subprocess
 
-# This converts a .asm file to grayscale image using the ASCII values of the assembly instructions
+# This converts a .c file to grayscale image using the ASCII values of the c code 
 # 
 # To call:
-#       python asm_ascii_to_image.py <ori_asm_input_directory> <obf_asm_input_directory>
+#       python asm_ascii_to_image.py <c_input_directory> <OPTIONAL: 2nd_input_directory>
 # 
 
-TARGET_SIZE = 512
+TARGET_SIZE = 256
+
+def c_to_asm(filepath, outpath):
+
+    print(f"Generating assembly for: {file.name} -> {outpath}")
+    try:
+        subprocess.run(['gcc', '-S', filepath, '-o', outpath], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error compiling {file.name}: {e}")
 
 def asm_to_image(filepath, target_size, outpath):
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -50,39 +58,35 @@ def asm_to_image(filepath, target_size, outpath):
 
 
 first_dir = Path(sys.argv[1])
-second_dir = Path(sys.argv[2])
+if len(sys.argv) > 2:
+    second_dir = Path(sys.argv[2])
+else:
+    second_dir = None
 
-os.makedirs("ori_ascii_gray", exist_ok=True)
-ori_output_dir = Path("ori_ascii_gray")
+os.makedirs("asm_output", exist_ok=True)
+asm_output_dir = Path("asm_output")
+os.makedirs("c_gray", exist_ok=True)
+image_output_dir = Path("c_gray")
 
-os.makedirs("obf_ascii_gray", exist_ok=True)
-obf_output_dir = Path("obf_ascii_gray")
-
+# Convert c to assembly
 for file in first_dir.iterdir():
-    if not file.is_file():
-            continue
-    if not file.name.endswith(".asm"):
-            print(f"Skipping {file.name} because it is not an .asm file.")
-            continue
-    for obf_file in second_dir.iterdir():
-        if not obf_file.is_file():
-            continue
-        if not obf_file.name.endswith(".asm"):
-            print(f"Skipping {obf_file.name} because it is not an .asm file.")
-            continue
-        if (file.name != obf_file.name):
-            continue
-        obf_outpath = obf_output_dir / (obf_file.name + ".png")
-        asm_to_image(obf_file, TARGET_SIZE, obf_outpath)
-        outpath = ori_output_dir / (file.name + ".png")
-        asm_to_image(file, TARGET_SIZE, outpath)
-"""
-for file in second_dir.iterdir():
-    if not file.name.endswith(".asm"):
-        print(f"Skipping {file.name} because it is not an .asm file.")
+    if not file.name.endswith(".c"):
+        print(f"Skipping {file.name} because it is not an .c file.")
         continue
-    if not file.is_file():
-        continue
-    outpath = obf_output_dir / (file.name + ".png")
+    outpath = image_output_dir / (file.name + ".png")
     asm_to_image(file, TARGET_SIZE, outpath)
-    """
+
+if second_dir is not None: 
+    for file in second_dir.iterdir():
+        if not file.name.endswith(".c"):
+            print(f"Skipping {file.name} because it is not an .c file.")
+            continue
+        outpath = image_output_dir / (file.name + ".png")
+        asm_to_image(file, TARGET_SIZE, outpath)
+
+"""for file in asm_output_dir.iterdir():
+    if not file.name.endswith(".asm"):
+        print(f"Skipping {file.name} because it is not a .asm file.")
+        continue 
+    outpath = image_output_dir / (file.name + "png")
+    asm_to_image(file, TARGET_SIZE, outpath)"""

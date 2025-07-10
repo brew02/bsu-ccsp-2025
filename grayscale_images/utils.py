@@ -7,7 +7,22 @@ import ICP
 from skimage import data, io
 from skimage.util import img_as_float
 from skimage.metrics import structural_similarity as ssim
+import os
 
+def find_image_pair(filename, in_dir):
+    for file in in_dir.iterdir():
+        obf_name = "obf_" + filename
+        if (file.name == obf_name):
+            #print(f"Match for {filename} found!")
+            return file 
+        #print(f"No match for {filename} found.")
+    return None
+
+def find_image_pair_dif_dir(filename, other_dir):
+    for file in other_dir.iterdir():
+        if (file.name == filename):
+            return file
+    return None
 
 def get_image(sample_name):
     # Displays an image of a given sample
@@ -60,27 +75,57 @@ def pixel_hist(sample_name):
     plt.grid(True)
     plt.show()
 
-def compare_images(sample_name1, sample_name2):
+def compare_images(sample_name1, sample_name2, in_dir):
     # Compares two images side by side
 
-    image_path1 = Path(f"images/{sample_name1}")
+    image_path1 = Path(f"{in_dir}/{sample_name1}")
     image_path1 = image_path1.resolve()
 
-    image_path2 = Path(f"images/{sample_name2}")
+    image_path2 = Path(f"{in_dir}/{sample_name2}")
     image_path2 = image_path2.resolve()
 
     if image_path1.is_file() and image_path2.is_file():
         image1 = Image.open(image_path1)
         image2 = Image.open(image_path2)
 
+        title1 = sample_name1[:15]
+        title2 = sample_name2[:15]
+
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
         ax[0].imshow(image1, cmap='gray')
-        ax[0].set_title(sample_name1)
+        ax[0].set_title(title1)
         ax[0].axis('off')
 
         ax[1].imshow(image2, cmap='gray')
-        ax[1].set_title(sample_name2)
+        ax[1].set_title(title2)
         ax[1].axis('off')
+
+        fig.tight_layout()
+
+        plt.show()
+    else:
+        print("One or both of the specified images do not exist.")
+
+def compare_images_path(image_path1, image_path2):
+    # Compares two images side by side
+
+    if image_path1.is_file() and image_path2.is_file():
+        image1 = Image.open(image_path1)
+        image2 = Image.open(image_path2)
+
+        title1 = (image_path1.name)[:15]
+        title2 = (image_path2.name)[:15]
+
+        fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+        ax[0].imshow(image1, cmap='gray')
+        ax[0].set_title(title1)
+        ax[0].axis('off')
+
+        ax[1].imshow(image2, cmap='gray')
+        ax[1].set_title(title2)
+        ax[1].axis('off')
+
+        fig.tight_layout()
 
         plt.show()
     else:
@@ -114,6 +159,7 @@ def compare_pixel_hists(sample_name1, sample_name2):
     else:
         print("One or both of the specified pixel intensity files do not exist.")
 
+"""s
 def spatial_analysis(sample_name1, sample_name2):
     # Performs spatial analysis on two images by calculating the ICP (Iterative Closest Point)
 
@@ -140,6 +186,7 @@ def spatial_analysis(sample_name1, sample_name2):
         print(f"ICP Result: {icp_result}")
     else:
         print("One or both of the specified images do not exist.")
+"""
 
 def calculate_icp(sample_name1, sample_name2):
     # Calculates the ICP (Iterative Closest Point) between two images
