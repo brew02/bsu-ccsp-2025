@@ -8,7 +8,7 @@ import subprocess
 # This converts a .asm file to grayscale image using the ASCII values of the assembly instructions
 # 
 # To call:
-#       python asm_ascii_to_image.py <asm_input_directory> <OPTIONAL: 2nd_input_directory>
+#       python asm_ascii_to_image.py <ori_asm_input_directory> <obf_asm_input_directory>
 # 
 
 TARGET_SIZE = 512
@@ -50,18 +50,26 @@ def asm_to_image(filepath, target_size, outpath):
 
 
 first_dir = Path(sys.argv[1])
+"""
 if len(sys.argv) > 2:
     second_dir = Path(sys.argv[2])
 else:
     second_dir = None
-os.makedirs("ascii_gray", exist_ok=True)
-output_dir = Path("ascii_gray")
+    """
+second_dir = Path(sys.argv[2])
+os.makedirs("ori_ascii_gray", exist_ok=True)
+ori_output_dir = Path("ori_ascii_gray")
+
+os.makedirs("obf_ascii_gray", exist_ok=True)
+obf_output_dir = Path("obf_ascii_gray")
 
 for file in first_dir.iterdir():
     if not file.name.endswith(".asm"):
         print(f"Skipping {file.name} because it is not an .asm file.")
         continue
-    outpath = output_dir / (file.name + ".png")
+    if not file.is_file():
+        continue
+    outpath = ori_output_dir / (file.name + ".png")
     asm_to_image(file, TARGET_SIZE, outpath)
 
 if second_dir is not None: 
@@ -69,5 +77,7 @@ if second_dir is not None:
         if not file.name.endswith(".asm"):
             print(f"Skipping {file.name} because it is not an .asm file.")
             continue
-        outpath = output_dir / (file.name + ".png")
+        if not file.is_file():
+            continue
+        outpath = obf_output_dir / (file.name + ".png")
         asm_to_image(file, TARGET_SIZE, outpath)

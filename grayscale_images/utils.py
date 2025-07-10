@@ -18,6 +18,12 @@ def find_image_pair(filename, in_dir):
         #print(f"No match for {filename} found.")
     return None
 
+def find_image_pair_dif_dir(filename, other_dir):
+    for file in other_dir.iterdir():
+        if (file.name == filename):
+            return file
+    return None
+
 def get_image(sample_name):
     # Displays an image of a given sample
     image_path = Path(f"images/{sample_name}")
@@ -84,6 +90,31 @@ def compare_images(sample_name1, sample_name2, in_dir):
 
         title1 = sample_name1[:15]
         title2 = sample_name2[:15]
+
+        fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+        ax[0].imshow(image1, cmap='gray')
+        ax[0].set_title(title1)
+        ax[0].axis('off')
+
+        ax[1].imshow(image2, cmap='gray')
+        ax[1].set_title(title2)
+        ax[1].axis('off')
+
+        fig.tight_layout()
+
+        plt.show()
+    else:
+        print("One or both of the specified images do not exist.")
+
+def compare_images_path(image_path1, image_path2):
+    # Compares two images side by side
+
+    if image_path1.is_file() and image_path2.is_file():
+        image1 = Image.open(image_path1)
+        image2 = Image.open(image_path2)
+
+        title1 = (image_path1.name)[:15]
+        title2 = (image_path2.name)[:15]
 
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
         ax[0].imshow(image1, cmap='gray')
