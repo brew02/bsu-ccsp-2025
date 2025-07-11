@@ -2,7 +2,7 @@
 
 #SBATCH --partition=gpu-volatile
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=64G
+#SBATCH --mem=110G
 #SBATCH --gpus=2
 #SBATCH --gres=gpu:2
 
