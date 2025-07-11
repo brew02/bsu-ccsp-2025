@@ -11,7 +11,7 @@ import subprocess
 #       python asm_ascii_to_image.py <ori_asm_input_directory> <obf_asm_input_directory>
 # 
 
-TARGET_SIZE = 512
+TARGET_SIZE = 256
 
 def asm_to_image(filepath, target_size, outpath):
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -52,32 +52,36 @@ def asm_to_image(filepath, target_size, outpath):
 first_dir = Path(sys.argv[1])
 second_dir = Path(sys.argv[2])
 
-os.makedirs("ori_ascii_gray", exist_ok=True)
-ori_output_dir = Path("ori_ascii_gray")
+os.makedirs("ori_c_ascii_gray", exist_ok=True)
+ori_output_dir = Path("ori_c_ascii_gray")
 
-os.makedirs("obf_ascii_gray", exist_ok=True)
-obf_output_dir = Path("obf_ascii_gray")
+os.makedirs("obf_c_ascii_gray", exist_ok=True)
+obf_output_dir = Path("obf_c_ascii_gray")
 
 for file in first_dir.iterdir():
     if not file.is_file():
             continue
-    if not file.name.endswith(".asm"):
-            print(f"Skipping {file.name} because it is not an .asm file.")
+    if not file.name.endswith(".c"):
+            print(f"Skipping {file.name} because it is not an .c file.")
             continue
     for obf_file in second_dir.iterdir():
         if not obf_file.is_file():
             continue
-        if not obf_file.name.endswith(".asm"):
-            print(f"Skipping {obf_file.name} because it is not an .asm file.")
+        if not obf_file.name.endswith(".c"):
+            print(f"Skipping {obf_file.name} because it is not an .c file.")
             continue
-        if (file.name != obf_file.name):
+        filename = "obf_" + file.name
+        if (filename != obf_file.name):
             continue
         obf_outpath = obf_output_dir / (obf_file.name + ".png")
+
         if obf_outpath.exists():
             print(f"Skipping {obf_file.name} because {outpath.name} already exists.")
             continue
+
         asm_to_image(obf_file, TARGET_SIZE, obf_outpath)
         outpath = ori_output_dir / (file.name + ".png")
+
         if outpath.exists():
             print(f"Skipping {file.name} because {outpath.name} already exists.")
             continue

@@ -13,7 +13,7 @@ import sys
 #       python decompile.py <binary_directory>
 #
 
-# HARD CODED FOR THE MOMENT 
+# HARD CODED FOR THE MOMENT because it took me a while to get Ghidra set up in the right place
 PROJECT_LOCATION = "/Users/devyn/ghidra_projects"
 PROJECT_NAME = "highLevel_ghidra"
 
@@ -74,8 +74,8 @@ def get_text(program):
     print("Couldn't find code section. Decompiling the full binary.")
     return None, None, None
 
-os.makedirs("decompiled", exist_ok=True)
-out_dir = Path("decompiled")
+os.makedirs("c_code", exist_ok=True)
+out_dir = Path("c_code")
 
 input_dir = Path(sys.argv[1])
 
@@ -84,4 +84,7 @@ for file in input_dir.iterdir():
         print(f"Skipping {file.name} because it is not correct type.")
         continue
     outpath = out_dir / (file.name + ".c")
+    if outpath.exists():
+            print(f"Skipping {file.name} because {outpath.name} already exists.")
+            continue
     decompile(PROJECT_LOCATION, PROJECT_NAME, file, outpath)    
