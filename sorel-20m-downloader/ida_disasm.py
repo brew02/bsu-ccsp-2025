@@ -3,7 +3,6 @@ import sys
 import os
 import subprocess
 import shutil
-import re
 
 import concurrent.futures
 
@@ -32,8 +31,8 @@ def ida_disasm(file_path: str):
 
     file_name = os.path.basename(file_path)
 
-    # Deny files larger than 2 MB
-    if os.path.getsize(file_path) > 2000000:
+    # Deny files greater than or equal to 2 MB
+    if os.path.getsize(file_path) >= 2000000:
         print(f"[-] {file_name}: Too large, removing file")
         os.remove(file_path)
         return False
@@ -74,15 +73,6 @@ def ida_disasm(file_path: str):
         run_idat(idat, file_path)
         
         if os.path.exists(file_path + ".asm"):
-            with open(file_path + ".asm", "rb+") as file:
-                # strip the file of comments
-                contents = file.read()
-                stripped_contents = contents.decode(encoding='utf-8', errors='ignore')
-                stripped_contents = re.sub(re.compile(";.*(?=\n)"), "", stripped_contents)
-
-                file.seek(0)
-                file.write(stripped_contents.encode(encoding='utf-8', errors='ignore'))
-                file.truncate()
             print(f"[+] Disassembled {file_name}")
             shutil.move(file_path + ".asm", "./asm")
 

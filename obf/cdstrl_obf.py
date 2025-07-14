@@ -17,7 +17,7 @@ def classify_lines(content: str):
     classified_lines = [('', False)] * num_lines
 
     # For each line, determine if it is obfuscatable or not
-    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|segment|ends|686p|mmx|model)\b.*|\s*)$\n?"
+    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|segment|ends|686p|mmx|model|text|<|>)\b.*|\s*)$\n?"
 
     index = 0
     for line in lines:
@@ -69,9 +69,7 @@ def llm_obf(file_path: str):
                 for text in texts:
                     messages = [{'role': 'user', 'content': text}]
                     response = ollama.chat(model=model_name, messages=messages, keep_alive='30m')
-
-                    content = re.sub(r"^.*(?:assembly|obfuscated|`).*$", "", response.message.content)
-                    file_out.write(f"{content}\n")
+                    file_out.write(f"{response.message.content}\n")
             else:
                 file_out.write(f"{line[0]}\n")
             
