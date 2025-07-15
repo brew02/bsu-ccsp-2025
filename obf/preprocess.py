@@ -23,12 +23,16 @@ def preprocess(file_path: str):
 
     with open(file_path, 'r+', encoding='utf-8', errors='ignore') as file:
         content = file.read()
+        # Remove everything between triple backticks (```). This is mostly
+        # for the obfuscated assembly files as the LLMs will sometimes return
+        # code in the markdown format with three backticks.
+        content = re.sub(r"```(?:.*?```|.*?(?=$))", "", content, flags=re.DOTALL)
         # Remove all semicolon comments.
         content = re.sub(r";.*(?=\n)", "", content)
         # Replace all lines that contain the words "assembly", "obfuscated",
         # a backtick (`), or triple dots (...). This is mostly for the 
         # obfuscated assembly files.
-        content = re.sub(r"^.*(?:assembly|obfuscated|`|\.\.\.).*$", "", content, flags=re.MULTILINE | re.IGNORECASE)        
+        content = re.sub(r"^.*(?:assembly|obfuscated|\.\.\.).*$", "", content, flags=re.MULTILINE | re.IGNORECASE)        
         # Replace all whitespace, not including newlines and carriage returns,
         # with a single space.
         content = re.sub(r"[^\S\r\n]+", ' ', content)
