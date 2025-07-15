@@ -114,7 +114,7 @@ def compare_images_path(image_path1, image_path2):
         image2 = Image.open(image_path2)
 
         title1 = (image_path1.name)[:15]
-        title2 = (image_path2.name)[:15]
+        title2 = "obf_" + (image_path2.name)[:15]
 
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
         ax[0].imshow(image1, cmap='gray')
