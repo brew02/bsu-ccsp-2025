@@ -22,7 +22,7 @@ source .env/bin/activate
 module load python/3.8.11
 which python3
 
-python3 cdstrl_obf.py
+python3 cdstrl_obf.py > /dev/null 2>&1
 deactivate
 cd $SLURM_SUBMIT_DIR
 kill $(cat ollama_pid_for_$SLURM_JOB_ID.pid)

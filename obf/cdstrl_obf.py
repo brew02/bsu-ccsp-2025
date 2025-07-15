@@ -17,14 +17,14 @@ def classify_lines(content: str):
     classified_lines = [('', False)] * num_lines
 
     # For each line, determine if it is obfuscatable or not
-    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|segment|ends|686p|mmx|model|text|<|>)\b.*|\s*)$\n?"
+    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|end|ends|rva|segment|ends|686p|mmx|model|text)\b.*|.*[<>].*|\s*)$\n?"
 
     index = 0
     for line in lines:
         if not line or line.isspace():
             continue
 
-        is_obfuscatable = not bool(re.search(regex, line))
+        is_obfuscatable = not bool(re.search(regex, line, re.IGNORECASE))
         if classified_lines[index][1] == is_obfuscatable:
             if classified_lines[index]:
                 classified_lines[index] = (f"{classified_lines[index][0]}\n{line}", is_obfuscatable)
@@ -53,7 +53,7 @@ def llm_obf(file_path: str):
         text_splitter = RecursiveCharacterTextSplitter(
             is_separator_regex=False,
             separators=["\n"],
-            chunk_size=2000,
+            chunk_size=1000,
             chunk_overlap=0,
             length_function=len,
             strip_whitespace = False,
