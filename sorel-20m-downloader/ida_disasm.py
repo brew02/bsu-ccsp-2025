@@ -108,10 +108,22 @@ if os.path.exists(user_path) == False:
 print(f"[>] Using {user_path}")
 os.makedirs("asm", exist_ok=True)
 
+# Loop through the directory if that was specified
 if os.path.isdir(user_path):
-    # Loop through the directory if that was specified
+    all_files = []
+    for file_name in os.listdir(user_path):
+        full_path = os.path.join(user_path, file_name)
+        if not os.path.isfile(full_path):
+            continue
+
+        try:
+            all_files.append((full_path, os.path.getsize(full_path)))
+        except OSError:
+            continue
+
+    all_sorted_files = sorted(all_files, key=lambda x: x[1], reverse=False)
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
-        [executor.submit(ida_disasm, os.path.join(user_path, file_name)) for file_name in os.listdir(user_path)]
+        [executor.submit(ida_disasm, file[0]) for file in all_sorted_files]
 else:
     ida_disasm(user_path)
 
