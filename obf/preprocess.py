@@ -32,7 +32,7 @@ def preprocess(file_path: str):
         # Replace all lines that contain the words "assembly", "obfuscated",
         # a backtick (`), or triple dots (...). This is mostly for the 
         # obfuscated assembly files.
-        content = re.sub(r"^.*(?:assembly|obfuscated|\.\.\.).*$", "", content, flags=re.MULTILINE | re.IGNORECASE)        
+        content = re.sub(r"^.*(?:assembly|obfuscated|dead|\.\.\.).*$", "", content, flags=re.MULTILINE | re.IGNORECASE)        
         # Replace all whitespace, not including newlines and carriage returns,
         # with a single space.
         content = re.sub(r"[^\S\r\n]+", ' ', content)

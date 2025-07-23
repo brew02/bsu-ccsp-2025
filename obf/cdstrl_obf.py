@@ -14,10 +14,16 @@ ollama.chat(model=model_name, keep_alive='30m')
 def classify_lines(content: str):
     lines = content.splitlines()
     num_lines = len(lines)
-    classified_lines = [('', False)] * num_lines
+    classified_lines = [('', False)] * (num_lines + 1)
 
     # For each line, determine if it is obfuscatable or not
-    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|end|ends|rva|segment|ends|686p|mmx|model|text)\b.*|.*[<>].*|\s*)$\n?"
+    # Non-obfuscatable lines:
+    # Any line that contains these full words: db, dw, dd, dq, align,
+    # proc, public, endp, end, ends, rva, segment, 686p, mmx, model,
+    # text, intel_syntax, noprefix
+    # Any line that contains an angle bracket (< or >)
+    # Any line that only contains whitespace
+    regex = r"^(?:.*\b(?:db|dw|dd|dq|align|proc|public|endp|end|ends|rva|segment|686p|mmx|model|text|intel_syntax|noprefix)\b.*|.*[<>].*|\s*)$\n?"
 
     index = 0
     for line in lines:
@@ -26,10 +32,7 @@ def classify_lines(content: str):
 
         is_obfuscatable = not bool(re.search(regex, line, re.IGNORECASE))
         if classified_lines[index][1] == is_obfuscatable:
-            if classified_lines[index]:
-                classified_lines[index] = (f"{classified_lines[index][0]}\n{line}", is_obfuscatable)
-            else:
-                classified_lines[index] = (line, is_obfuscatable)
+            classified_lines[index] = (f"{classified_lines[index][0]}\n{line}", is_obfuscatable)
         else:
             index = index + 1
             classified_lines[index] = (line, is_obfuscatable)
@@ -59,19 +62,24 @@ def llm_obf(file_path: str):
             strip_whitespace = False,
         )
 
+        obfuscation_count = 0
         for line in lines:
             if not line[0] or line[0].isspace():
                 continue
 
-            # Obfuscatable line
+            # Line is considered obfuscatable
             if line[1]:
+                obfuscation_count += 1
                 texts = text_splitter.split_text(line[0])
+                file_out.write(f"\n; obfuscation #{obfuscation_count} begin\n")
                 for text in texts:
                     messages = [{'role': 'user', 'content': text}]
                     response = ollama.chat(model=model_name, messages=messages, keep_alive='30m')
-                    file_out.write(f"{response.message.content}\n")
+                    file_out.write(f"\n{response.message.content}\n")
+
+                file_out.write(f"\n; obfuscation #{obfuscation_count} end\n")
             else:
-                file_out.write(f"{line[0]}\n")
+                file_out.write(f"\n{line[0]}\n")
             
         print(f"[+] Obfuscated {file_name}")
 
